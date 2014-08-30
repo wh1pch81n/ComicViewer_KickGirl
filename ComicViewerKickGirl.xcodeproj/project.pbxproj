@@ -22,6 +22,11 @@
 		7FC54B5819B27B36000D1EDD /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FC54B3719B27B36000D1EDD /* UIKit.framework */; };
 		7FC54B6019B27B36000D1EDD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7FC54B5E19B27B36000D1EDD /* InfoPlist.strings */; };
 		7FC54B6219B27B36000D1EDD /* ComicViewerKickGirlTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B6119B27B36000D1EDD /* ComicViewerKickGirlTests.m */; };
+		7FC54B6E19B27C6E000D1EDD /* CVArchiveXMLDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B6D19B27C6E000D1EDD /* CVArchiveXMLDownloader.m */; };
+		7FC54B7119B27C93000D1EDD /* CVThumbnailImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7019B27C93000D1EDD /* CVThumbnailImageDownloader.m */; };
+		7FC54B7419B27CA9000D1EDD /* CVFullImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7319B27CA9000D1EDD /* CVFullImageDownloader.m */; };
+		7FC54B7719B28A31000D1EDD /* CVComicRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7619B28A31000D1EDD /* CVComicRecord.m */; };
+		7FC54B7A19B28D10000D1EDD /* CVPendingOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7919B28D10000D1EDD /* CVPendingOperations.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +60,16 @@
 		7FC54B5D19B27B36000D1EDD /* ComicViewerKickGirlTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ComicViewerKickGirlTests-Info.plist"; sourceTree = "<group>"; };
 		7FC54B5F19B27B36000D1EDD /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		7FC54B6119B27B36000D1EDD /* ComicViewerKickGirlTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ComicViewerKickGirlTests.m; sourceTree = "<group>"; };
+		7FC54B6C19B27C6E000D1EDD /* CVArchiveXMLDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVArchiveXMLDownloader.h; sourceTree = "<group>"; };
+		7FC54B6D19B27C6E000D1EDD /* CVArchiveXMLDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVArchiveXMLDownloader.m; sourceTree = "<group>"; };
+		7FC54B6F19B27C93000D1EDD /* CVThumbnailImageDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVThumbnailImageDownloader.h; sourceTree = "<group>"; };
+		7FC54B7019B27C93000D1EDD /* CVThumbnailImageDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVThumbnailImageDownloader.m; sourceTree = "<group>"; };
+		7FC54B7219B27CA9000D1EDD /* CVFullImageDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFullImageDownloader.h; sourceTree = "<group>"; };
+		7FC54B7319B27CA9000D1EDD /* CVFullImageDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVFullImageDownloader.m; sourceTree = "<group>"; };
+		7FC54B7519B28A31000D1EDD /* CVComicRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVComicRecord.h; sourceTree = "<group>"; };
+		7FC54B7619B28A31000D1EDD /* CVComicRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVComicRecord.m; sourceTree = "<group>"; };
+		7FC54B7819B28D10000D1EDD /* CVPendingOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVPendingOperations.h; sourceTree = "<group>"; };
+		7FC54B7919B28D10000D1EDD /* CVPendingOperations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVPendingOperations.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +135,11 @@
 				7FC54B4819B27B36000D1EDD /* Main_iPad.storyboard */,
 				7FC54B4B19B27B36000D1EDD /* CVViewController.h */,
 				7FC54B4C19B27B36000D1EDD /* CVViewController.m */,
+				7FC54B7519B28A31000D1EDD /* CVComicRecord.h */,
+				7FC54B7619B28A31000D1EDD /* CVComicRecord.m */,
+				7FC54B7819B28D10000D1EDD /* CVPendingOperations.h */,
+				7FC54B7919B28D10000D1EDD /* CVPendingOperations.m */,
+				7FC54B6B19B27C25000D1EDD /* NSOperation */,
 				7FC54B4E19B27B36000D1EDD /* Images.xcassets */,
 				7FC54B3A19B27B36000D1EDD /* Supporting Files */,
 			);
@@ -153,6 +173,19 @@
 				7FC54B5E19B27B36000D1EDD /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		7FC54B6B19B27C25000D1EDD /* NSOperation */ = {
+			isa = PBXGroup;
+			children = (
+				7FC54B6C19B27C6E000D1EDD /* CVArchiveXMLDownloader.h */,
+				7FC54B6D19B27C6E000D1EDD /* CVArchiveXMLDownloader.m */,
+				7FC54B6F19B27C93000D1EDD /* CVThumbnailImageDownloader.h */,
+				7FC54B7019B27C93000D1EDD /* CVThumbnailImageDownloader.m */,
+				7FC54B7219B27CA9000D1EDD /* CVFullImageDownloader.h */,
+				7FC54B7319B27CA9000D1EDD /* CVFullImageDownloader.m */,
+			);
+			name = NSOperation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -256,7 +289,12 @@
 			files = (
 				7FC54B4019B27B36000D1EDD /* main.m in Sources */,
 				7FC54B4419B27B36000D1EDD /* CVAppDelegate.m in Sources */,
+				7FC54B7A19B28D10000D1EDD /* CVPendingOperations.m in Sources */,
+				7FC54B7119B27C93000D1EDD /* CVThumbnailImageDownloader.m in Sources */,
+				7FC54B6E19B27C6E000D1EDD /* CVArchiveXMLDownloader.m in Sources */,
+				7FC54B7419B27CA9000D1EDD /* CVFullImageDownloader.m in Sources */,
 				7FC54B4D19B27B36000D1EDD /* CVViewController.m in Sources */,
+				7FC54B7719B28A31000D1EDD /* CVComicRecord.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
