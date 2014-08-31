@@ -12,37 +12,64 @@
 #import "CVFullImageDownloader.h"
 #import "CVThumbnailImageDownloader.h"
 #import "CVComicRecord.h"
+#import "CVContentViewController.h"
 
 @interface CVViewController ()
-
-@property (nonatomic, strong) CVPendingOperations *pendingOperations;
-
-@property (nonatomic, strong) NSArray *comicRecords;
-@property (weak, nonatomic) IBOutlet UIImageView *image;
-
-@property (assign, nonatomic) BOOL canRemoveThumbQueueNotificationWhenDealloc;
+@property (strong, nonatomic) UIPageViewController *pageViewController;
 @property (assign, nonatomic) BOOL canRemoveFullQueueNotificationWhenDealloc;
+@property (strong, nonatomic) NSCache *contentViewCache;
 @end
 
-@implementation CVViewController
+@implementation CVViewController {
+    BOOL wasTapped;
+}
+
+- (NSCache *)contentViewCache{
+    if (_contentViewCache) {
+        return _contentViewCache;
+    }
+    _contentViewCache = [NSCache new];
+    _contentViewCache.countLimit = 5;
+    
+    return _contentViewCache;
+}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    self.edgesForExtendedLayout = UIRectEdgeNone;
 	// Do any additional setup after loading the view, typically from a nib.
+    { //notification add observers
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFinishDownloading:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFail:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
+    }
+    {//hide navigation bar
+     // self.navigationController.navigationBarHidden = YES;
+    }
+    { //create page view controller
+        self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
+        self.pageViewController.dataSource = self;
+        
+        CVContentViewController *startingViewController = [self viewControllerAtIndexpath:self.indexpath];
+        [self.pageViewController setViewControllers:@[startingViewController]
+                                          direction:UIPageViewControllerNavigationDirectionForward
+                                           animated:NO completion:nil];
+        
+        
+        
+        //Change the size of the page view controller
+        //self.pageViewController.view.frame = CGRectMake(0, 20, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame)-20);
+        [self addChildViewController:_pageViewController];
+        [self.view addSubview:_pageViewController.view];
+        [self.pageViewController didMoveToParentViewController:self];
+    }
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(archiveFinishedDownloading:) name:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION object:nil];
-    CVArchiveXMLDownloader *archiveOperation = [[CVArchiveXMLDownloader alloc] init];
-    
-    [self.pendingOperations.archiveXMLDownloaderOperationQueue addOperation:archiveOperation];
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION object:nil];
-    if (self.canRemoveFullQueueNotificationWhenDealloc) {
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
-    }
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
+     [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
 }
 
 - (void)didReceiveMemoryWarning
@@ -51,62 +78,105 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (CVPendingOperations *)pendingOperations {
-    return _pendingOperations?:(_pendingOperations = [CVPendingOperations new]);
-}
+#pragma mark - notifications
 
-#pragma mark - kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION
 
-- (void)archiveFinishedDownloading:(NSNotification *)notification {
-    //NSLog(@"%@", notification.userInfo);
-    self.comicRecords = notification.userInfo[@"comicRecords"];
-    
-    self.canRemoveFullQueueNotificationWhenDealloc = YES;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDownloaded:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDownloadFailed:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
-    
-    NSIndexPath *ip = [NSIndexPath indexPathForRow:arc4random_uniform(self.comicRecords.count)
-                                         inSection:0];
-    CVComicRecord *comicRecord = self.comicRecords[ip.row];
-    CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:ip];
-    self.pendingOperations.fullDownloadersInProgress[ip] = downloader;
-    [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
-    
-//    self.canRemoveThumbQueueNotificationWhenDealloc = YES;
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(thumbnailImageDownloaded:) name:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION object:nil];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(thumbnailImageDownloadFailed:) name:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION object:nil];
-//    
-//    NSIndexPath *ip = [NSIndexPath indexPathForRow:arc4random_uniform(self.comicRecords.count)
-//                                         inSection:0];
-//    CVComicRecord *comicRecord = self.comicRecords[ip.row];
-//    CVThumbnailImageDownloader *downloader = [[CVThumbnailImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:ip];
-//    self.pendingOperations.thumbnailDownloadersInProgress[ip] = downloader;
-//    [self.pendingOperations.thumbnailDownloaderOperationQueue addOperation:downloader];
-}
-
-- (void)fullImageDownloaded:(NSNotification *)notification {
+- (void)fullImageDidFinishDownloading:(NSNotification *)notification {
     CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
+    NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
+    CVContentViewController *contentViewController = [self.contentViewCache objectForKey:indexpath];
     dispatch_async(dispatch_get_main_queue(), ^{
-        ((UIImageView *)self.image).image = comicRecord.fullImage;
+        contentViewController.comicImageView.image = comicRecord.fullImage;
     });
-   
-    [self.pendingOperations.fullDownloadersInProgress removeObjectForKey:notification.userInfo[@"indexPath"]];
+    
+    [self.pendingOperations.fullDownloadersInProgress removeObjectForKey:indexpath];
 }
 
-- (void)fullImageDownloadFailed:(NSNotification *)notification {
+- (void)fullImageDidFail:(NSNotification *)notification {
     [[[UIAlertView alloc] initWithTitle:@"oops" message:@"try again later" delegate:nil cancelButtonTitle:nil otherButtonTitles:nil] show];
 }
 
-- (void)thumbnailImageDownloaded:(NSNotification *)notification {
-    CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        ((UIImageView *)self.image).image = comicRecord.thumbnailImage;
-    });
-    [self.pendingOperations.thumbnailDownloadersInProgress removeObjectForKey:notification.userInfo[@"indexPath"]];
+#pragma mark - UIPageViewControllerDataSource Protocol
+
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(CVContentViewController *)contentViewController {
+    NSUInteger index = contentViewController.pageIndex;
+    if (index == NSNotFound) {
+        return nil;
+    }
+    index++;
+    return [self viewControllerAtIndexpath:[NSIndexPath indexPathForRow:index inSection:0]];
 }
 
-- (void)thumbnailImageDownloadFailed:(NSNotification *)notification {
-    [[[UIAlertView alloc] initWithTitle:@"oops" message:@"try again later" delegate:nil cancelButtonTitle:nil otherButtonTitles:nil] show];
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(CVContentViewController *)contentViewController {
+    NSUInteger index = contentViewController.pageIndex;
+    if ((index == 0) || (index == NSNotFound)) {
+        return nil;
+    }
+    index--;
+    return [self viewControllerAtIndexpath:[NSIndexPath indexPathForRow:index inSection:0]];
 }
+
+- (CVContentViewController *)viewControllerAtIndexpath:(NSIndexPath *)index {
+    if (([self.comicRecords count] == 0) || (index.row >= [self.comicRecords count])) {
+        return nil;
+    }
+    
+    CVContentViewController *contentViewController;
+    if ((contentViewController = [self.contentViewCache objectForKey:index])) {
+        return contentViewController;
+    }
+    
+    //Create a new view controller and pass suitable data
+    contentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageContentViewController"];
+    //contentViewController.imageFile = self.pageImages[index];
+    
+    //add this instance of the contentViewController to the cache so you can reference it later.
+    [self.contentViewCache setObject:contentViewController forKey:index];
+    
+    contentViewController.pageIndex = index.row;
+    
+    CVComicRecord *comicRecord = self.comicRecords[index.row];
+    if (comicRecord.fullImage) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            contentViewController.comicImageView.image = comicRecord.fullImage;
+        });
+    } else {
+        CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:index];
+        self.pendingOperations.fullDownloadersInProgress[index] = downloader;
+        [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
+    }
+    return contentViewController;
+}
+
+
+#pragma mark - touches
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (touches.count == 1) {
+        wasTapped = YES;
+    }
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    
+    wasTapped = NO;
+    self.navigationController.navigationBarHidden = YES;
+    
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (wasTapped) {
+        wasTapped = NO;
+        self.navigationController.navigationBarHidden = NO;
+    }
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (wasTapped) {
+        wasTapped = NO;
+        self.navigationController.navigationBarHidden = YES;
+    }
+}
+
 
 @end

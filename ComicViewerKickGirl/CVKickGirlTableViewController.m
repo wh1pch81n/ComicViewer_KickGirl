@@ -11,6 +11,7 @@
 #import "CVArchiveXMLDownloader.h"
 #import "CVThumbnailImageDownloader.h"
 #import "CVComicRecord.h"
+#import "CVViewController.h"
 
 @interface CVKickGirlTableViewController ()
 
@@ -109,9 +110,8 @@
     cell.textLabel.text = comicRecord.title;
     cell.detailTextLabel.text = comicRecord.date;
     
-    if (comicRecord.thumbnailImage) {
-        cell.imageView.image = comicRecord.thumbnailImage;
-    } else {
+    //if thumb nail results in nil then start downloader for it.
+    if ((cell.imageView.image = comicRecord.thumbnailImage) == nil) {
         CVThumbnailImageDownloader *downloader = [[CVThumbnailImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
         self.pendingOperations.thumbnailDownloadersInProgress[indexPath] = downloader;
         [self.pendingOperations.thumbnailDownloaderOperationQueue addOperation:downloader];
@@ -156,7 +156,7 @@
 }
 */
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -164,14 +164,25 @@
 {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    CVViewController *cvc = [segue destinationViewController];
+    NSIndexPath *ip = [self.tableView indexPathForSelectedRow];
+    cvc.comicRecords = self.comicRecords;
+    cvc.indexpath = ip;
+    cvc.pendingOperations = self.pendingOperations;
 }
-*/
+
 
 
 #pragma mark - notifications
 
 - (void)archiveDidFinishDownloading:(NSNotification *)notification {
-    self.comicRecords = notification.userInfo[@"comicRecords"];
+    NSMutableArray *reverseArray = [NSMutableArray new];
+    NSArray *comicRecords = [NSMutableArray arrayWithArray:notification.userInfo[@"comicRecords"]];
+    for (id element in [comicRecords reverseObjectEnumerator]) {
+        [reverseArray addObject:element];
+    }
+    self.comicRecords = reverseArray;
+    
     //[self.pendingOperations.archiveXMLDownloadersInProgress removeObjectForKey:notification.userInfo[@"indexPath"]];
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.tableView reloadData];
@@ -201,6 +212,5 @@
 - (void)thumbnailDidFail:(NSNotification *)notification {
 #warning implement error later
 }
-
 
 @end

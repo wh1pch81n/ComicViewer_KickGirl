@@ -8,6 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface CVViewController : UIViewController
+@class CVPendingOperations;
+@interface CVViewController : UIViewController <UIPageViewControllerDataSource>
+
+@property (strong, nonatomic) NSArray *comicRecords;
+@property (strong, nonatomic) CVPendingOperations *pendingOperations;
+@property (strong, nonatomic) NSIndexPath *indexpath;
 
 @end
