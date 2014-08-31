@@ -10,6 +10,8 @@
 #import "CVComicRecord.h"
 
 NSString *const kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION = @"kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION";
+NSString *const kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOAD_FAILED_NOTIFICATION = @"kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOAD_FAILED_NOTIFICATION";
+
 NSString *const kComicSourceURL = @"http://www.kick-girl.com/?cat=3";
 NSString *const kComicThumbnail = @"comicthumbnail";
 NSString *const kComicThumbDate = @"comicthumbdate";
@@ -36,13 +38,16 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
         NSString *text = [NSString stringWithContentsOfURL:self.urlOfArchive encoding:NSUTF8StringEncoding error:&err];
         if (err) {
             //create error message
+            [self operationFailed];
             return;
         }
         if (self.isCancelled) {
+            [self operationFailed];
             return;
         }
         text = [self cleanText:text];
         if (self.isCancelled) {
+            [self operationFailed];
             return;
         }
         //use XML parser to get the array of archive objects
@@ -51,15 +56,27 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
         xmlparser.delegate = self;
         [xmlparser parse];
         if (self.isCancelled) {
+            [self operationFailed];
             return;
         }
         //NSLog(@"Done Parsing");
         //Send notification
         //YOu should be able to have information about title,date,thumbImageURL, and fullPageURL
-        [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION
+        [self operationCompleted];
+    }
+}
+
+- (void)operationCompleted {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION
                                                             object:self
                                                           userInfo:@{@"comicRecords":self.comicRecords}];
-    }
+
+}
+
+- (void)operationFailed {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOAD_FAILED_NOTIFICATION
+                                                        object:self
+                                                      userInfo:@{@"comicRecords":self.comicRecords}];
 }
 
 - (NSString *)cleanText:(NSString *)text {

@@ -27,6 +27,7 @@
 		7FC54B7419B27CA9000D1EDD /* CVFullImageDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7319B27CA9000D1EDD /* CVFullImageDownloader.m */; };
 		7FC54B7719B28A31000D1EDD /* CVComicRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7619B28A31000D1EDD /* CVComicRecord.m */; };
 		7FC54B7A19B28D10000D1EDD /* CVPendingOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7919B28D10000D1EDD /* CVPendingOperations.m */; };
+		7FC54B7D19B2B12E000D1EDD /* CVKickGirlTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7C19B2B12E000D1EDD /* CVKickGirlTableViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,8 @@
 		7FC54B7619B28A31000D1EDD /* CVComicRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVComicRecord.m; sourceTree = "<group>"; };
 		7FC54B7819B28D10000D1EDD /* CVPendingOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVPendingOperations.h; sourceTree = "<group>"; };
 		7FC54B7919B28D10000D1EDD /* CVPendingOperations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVPendingOperations.m; sourceTree = "<group>"; };
+		7FC54B7B19B2B12E000D1EDD /* CVKickGirlTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVKickGirlTableViewController.h; sourceTree = "<group>"; };
+		7FC54B7C19B2B12E000D1EDD /* CVKickGirlTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVKickGirlTableViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +136,8 @@
 				7FC54B4319B27B36000D1EDD /* CVAppDelegate.m */,
 				7FC54B4519B27B36000D1EDD /* Main_iPhone.storyboard */,
 				7FC54B4819B27B36000D1EDD /* Main_iPad.storyboard */,
+				7FC54B7B19B2B12E000D1EDD /* CVKickGirlTableViewController.h */,
+				7FC54B7C19B2B12E000D1EDD /* CVKickGirlTableViewController.m */,
 				7FC54B4B19B27B36000D1EDD /* CVViewController.h */,
 				7FC54B4C19B27B36000D1EDD /* CVViewController.m */,
 				7FC54B7519B28A31000D1EDD /* CVComicRecord.h */,
@@ -294,6 +299,7 @@
 				7FC54B6E19B27C6E000D1EDD /* CVArchiveXMLDownloader.m in Sources */,
 				7FC54B7419B27CA9000D1EDD /* CVFullImageDownloader.m in Sources */,
 				7FC54B4D19B27B36000D1EDD /* CVViewController.m in Sources */,
+				7FC54B7D19B2B12E000D1EDD /* CVKickGirlTableViewController.m in Sources */,
 				7FC54B7719B28A31000D1EDD /* CVComicRecord.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
