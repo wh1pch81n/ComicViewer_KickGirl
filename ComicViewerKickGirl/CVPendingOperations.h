@@ -16,5 +16,7 @@
 @property (nonatomic, strong) NSMutableDictionary *thumbnailDownloadersInProgress;
 @property (nonatomic, strong) NSOperationQueue *thumbnailDownloaderOperationQueue;
 
+@property (nonatomic, strong) NSMutableDictionary *fullDownloadersInProgress;
+@property (nonatomic, strong) NSOperationQueue *fullDownloaderOperationQueue;
 
 @end

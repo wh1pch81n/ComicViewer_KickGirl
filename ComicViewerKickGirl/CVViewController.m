@@ -15,6 +15,7 @@
 @property (nonatomic, strong) CVPendingOperations *pendingOperations;
 
 @property (nonatomic, strong) NSArray *comicRecords;
+@property (weak, nonatomic) IBOutlet UIImageView *image;
 
 @end
 
