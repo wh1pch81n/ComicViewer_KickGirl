@@ -46,7 +46,7 @@ static NSString *const kIndexPath = @"indexPath";
             [self failedOperation];
             return;
         }
-        self.comicRecord.thumnailImage = img;
+        self.comicRecord.thumbnailImage = img;
     
         [self succesfulOperation];
     }

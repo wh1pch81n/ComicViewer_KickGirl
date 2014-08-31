@@ -10,6 +10,7 @@
 
 @implementation CVPendingOperations
 
+#pragma mark - ARchive
 - (NSMutableDictionary *)archiveXMLDownloadersInProgress {
     return _archiveXMLDownloadersInProgress?:(_archiveXMLDownloadersInProgress = [NSMutableDictionary new]);
 }
@@ -22,4 +23,35 @@
     }
     return _archiveXMLDownloaderOperationQueue;
 }
+
+#pragma mark - thumbnail
+
+- (NSMutableDictionary *)thumbnailDownloadersInProgress {
+    return _thumbnailDownloadersInProgress?:(_thumbnailDownloadersInProgress = [NSMutableDictionary new]);
+}
+
+- (NSOperationQueue *)thumbnailDownloaderOperationQueue {
+    if (_thumbnailDownloaderOperationQueue == nil) {
+        _thumbnailDownloaderOperationQueue = [NSOperationQueue new];
+        _thumbnailDownloaderOperationQueue.name = @"thumbnailDownloaderOperationQueue";
+        _thumbnailDownloaderOperationQueue.maxConcurrentOperationCount = 1; //debugging to make it slower
+    }
+    return _thumbnailDownloaderOperationQueue;
+}
+
+#pragma mark - fullimage
+
+- (NSMutableDictionary *)fullDownloadersInProgress {
+    return _fullDownloadersInProgress?:(_fullDownloadersInProgress = [NSMutableDictionary new]);
+}
+
+- (NSOperationQueue *)fullDownloaderOperationQueue {
+    if (_fullDownloaderOperationQueue == nil) {
+        _fullDownloaderOperationQueue = [NSOperationQueue new];
+        _fullDownloaderOperationQueue.name = @"archiveXMLDownloaderOperationQueue";
+        _fullDownloaderOperationQueue.maxConcurrentOperationCount = 1; //debugging to make it slower
+    }
+    return _fullDownloaderOperationQueue;
+}
+
 @end
