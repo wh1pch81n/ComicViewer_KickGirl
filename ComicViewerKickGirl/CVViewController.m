@@ -20,9 +20,7 @@
 @property (strong, nonatomic) NSCache *contentViewCache;
 @end
 
-@implementation CVViewController {
-    BOOL wasTapped;
-}
+@implementation CVViewController
 
 - (NSCache *)contentViewCache{
     if (_contentViewCache) {
@@ -37,6 +35,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
     self.edgesForExtendedLayout = UIRectEdgeNone;
 	// Do any additional setup after loading the view, typically from a nib.

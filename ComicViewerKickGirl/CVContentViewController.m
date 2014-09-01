@@ -9,6 +9,7 @@
 #import "CVContentViewController.h"
 
 @interface CVContentViewController ()
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
 @end
 
@@ -26,6 +27,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    NSLog(@"%@", self.view);
+    self.canDisplayBannerAds = YES;
+    [self.scrollView setContentSize:self.comicImageView.frame.size];
+    [self.scrollView setMaximumZoomScale:5];
+    [self.scrollView setMinimumZoomScale:1];
+    [self.scrollView setDelegate:self];
     // Do any additional setup after loading the view.
 }
 
@@ -64,5 +71,19 @@
     NSLog(@"touches canceled");
     self.navigationController.navigationBarHidden = YES;
 }
+
+#pragma mark - UIScrollView Delegate
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+    return self.comicImageView;
+}
+
+//- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
+//    NSLog(@"%@", scrollView);
+//    NSLog(@"%@", view);
+//    NSLog(@"%f", scale);
+//    
+//    
+//}
 
 @end
