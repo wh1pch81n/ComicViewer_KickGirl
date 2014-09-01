@@ -46,4 +46,23 @@
 }
 */
 
+
+#pragma mark - touches
+
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    NSLog(@"Touches ended");
+    
+    if (self.navigationController.isNavigationBarHidden) {
+        self.navigationController.navigationBarHidden = NO;
+    } else {
+         self.navigationController.navigationBarHidden = YES;
+    }
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    NSLog(@"touches canceled");
+    self.navigationController.navigationBarHidden = YES;
+}
+
 @end

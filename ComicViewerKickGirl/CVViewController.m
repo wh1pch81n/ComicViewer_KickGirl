@@ -98,16 +98,16 @@
 
 #pragma mark - UIPageViewControllerDataSource Protocol
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(CVContentViewController *)contentViewController {
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(CVContentViewController *)contentViewController {
     NSUInteger index = contentViewController.pageIndex;
-    if (index == NSNotFound) {
+    if (index == self.comicRecords.count -1 || (index == NSNotFound)) {
         return nil;
     }
     index++;
     return [self viewControllerAtIndexpath:[NSIndexPath indexPathForRow:index inSection:0]];
 }
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(CVContentViewController *)contentViewController {
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(CVContentViewController *)contentViewController {
     NSUInteger index = contentViewController.pageIndex;
     if ((index == 0) || (index == NSNotFound)) {
         return nil;
@@ -149,34 +149,7 @@
 }
 
 
-#pragma mark - touches
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (touches.count == 1) {
-        wasTapped = YES;
-    }
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    
-    wasTapped = NO;
-    self.navigationController.navigationBarHidden = YES;
-    
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (wasTapped) {
-        wasTapped = NO;
-        self.navigationController.navigationBarHidden = NO;
-    }
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (wasTapped) {
-        wasTapped = NO;
-        self.navigationController.navigationBarHidden = YES;
-    }
-}
 
 
 @end
