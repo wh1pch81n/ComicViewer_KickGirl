@@ -55,15 +55,44 @@
                                           direction:UIPageViewControllerNavigationDirectionForward
                                            animated:NO completion:nil];
         
-        
-        
-        //Change the size of the page view controller
-        //self.pageViewController.view.frame = CGRectMake(0, 20, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame)-20);
+        {//Change the size of the page view controller
+         //self.pageViewController.view.frame = CGRectMake(0, 0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame)-50);
+         //left constraint
+//            [NSLayoutConstraint constraintWithItem:self.pageViewController.view
+//                                         attribute:NSLayoutAttributeLeading
+//                                         relatedBy:NSLayoutRelationEqual
+//                                            toItem:self.view
+//                                         attribute:NSLayoutAttributeLeft
+//                                        multiplier:1 constant:0];
+//            
+//            //right constraint
+//            [NSLayoutConstraint constraintWithItem:self.pageViewController.view
+//                                         attribute:NSLayoutAttributeTrailing
+//                                         relatedBy:NSLayoutRelationEqual
+//                                            toItem:self.view
+//                                         attribute:NSLayoutAttributeRight
+//                                        multiplier:1 constant:0];
+//            //top constraint
+//            [NSLayoutConstraint constraintWithItem:self.pageViewController.view
+//                                         attribute:NSLayoutAttributeTop
+//                                         relatedBy:NSLayoutRelationEqual
+//                                            toItem:self.view
+//                                         attribute:NSLayoutAttributeTop
+//                                        multiplier:1 constant:0];
+//            //bottom constraint
+//            [NSLayoutConstraint constraintWithItem:self.pageViewController.view
+//                                         attribute:NSLayoutAttributeBottom
+//                                         relatedBy:NSLayoutRelationEqual
+//                                            toItem:self.view
+//                                         attribute:NSLayoutAttributeBottom
+//                                        multiplier:1 constant:75];
+//            [self.view layoutIfNeeded];
+        }
         [self addChildViewController:_pageViewController];
         [self.view addSubview:_pageViewController.view];
         [self.pageViewController didMoveToParentViewController:self];
     }
-    
+    // self.canDisplayBannerAds = YES;
 }
 
 - (void)dealloc {

@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7FA3B4E719B56C81008C645F /* icon80.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4DF19B56C81008C645F /* icon80.png */; };
+		7FA3B4E819B56C81008C645F /* icon120.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4E019B56C81008C645F /* icon120.png */; };
+		7FA3B4E919B56C81008C645F /* icon152.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4E119B56C81008C645F /* icon152.png */; };
+		7FA3B4EA19B56C81008C645F /* icon40.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4E219B56C81008C645F /* icon40.png */; };
+		7FA3B4EB19B56C81008C645F /* icon76.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4E319B56C81008C645F /* icon76.png */; };
+		7FA3B4EC19B56C81008C645F /* kickgirl.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4E419B56C81008C645F /* kickgirl.jpg */; };
+		7FA3B4ED19B56C81008C645F /* icon58.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4E519B56C81008C645F /* icon58.png */; };
+		7FA3B4EE19B56C81008C645F /* icon29.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4E619B56C81008C645F /* icon29.png */; };
 		7FC54B3419B27B36000D1EDD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FC54B3319B27B36000D1EDD /* Foundation.framework */; };
 		7FC54B3619B27B36000D1EDD /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FC54B3519B27B36000D1EDD /* CoreGraphics.framework */; };
 		7FC54B3819B27B36000D1EDD /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FC54B3719B27B36000D1EDD /* UIKit.framework */; };
@@ -43,6 +51,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7FA3B4DF19B56C81008C645F /* icon80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon80.png; sourceTree = "<group>"; };
+		7FA3B4E019B56C81008C645F /* icon120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon120.png; sourceTree = "<group>"; };
+		7FA3B4E119B56C81008C645F /* icon152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon152.png; sourceTree = "<group>"; };
+		7FA3B4E219B56C81008C645F /* icon40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon40.png; sourceTree = "<group>"; };
+		7FA3B4E319B56C81008C645F /* icon76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon76.png; sourceTree = "<group>"; };
+		7FA3B4E419B56C81008C645F /* kickgirl.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = kickgirl.jpg; sourceTree = "<group>"; };
+		7FA3B4E519B56C81008C645F /* icon58.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon58.png; sourceTree = "<group>"; };
+		7FA3B4E619B56C81008C645F /* icon29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon29.png; sourceTree = "<group>"; };
 		7FC54B3019B27B36000D1EDD /* ComicViewerKickGirl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ComicViewerKickGirl.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7FC54B3319B27B36000D1EDD /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		7FC54B3519B27B36000D1EDD /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -105,9 +121,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7FA3B4DE19B56C70008C645F /* iconImages */ = {
+			isa = PBXGroup;
+			children = (
+				7FA3B4DF19B56C81008C645F /* icon80.png */,
+				7FA3B4E019B56C81008C645F /* icon120.png */,
+				7FA3B4E119B56C81008C645F /* icon152.png */,
+				7FA3B4E219B56C81008C645F /* icon40.png */,
+				7FA3B4E319B56C81008C645F /* icon76.png */,
+				7FA3B4E419B56C81008C645F /* kickgirl.jpg */,
+				7FA3B4E519B56C81008C645F /* icon58.png */,
+				7FA3B4E619B56C81008C645F /* icon29.png */,
+			);
+			name = iconImages;
+			sourceTree = "<group>";
+		};
 		7FC54B2719B27B36000D1EDD = {
 			isa = PBXGroup;
 			children = (
+				7FA3B4DE19B56C70008C645F /* iconImages */,
 				7FC54B3919B27B36000D1EDD /* ComicViewerKickGirl */,
 				7FC54B5B19B27B36000D1EDD /* ComicViewerKickGirlTests */,
 				7FC54B3219B27B36000D1EDD /* Frameworks */,
@@ -280,9 +312,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				7FC54B4A19B27B36000D1EDD /* Main_iPad.storyboard in Resources */,
+				7FA3B4EB19B56C81008C645F /* icon76.png in Resources */,
 				7FC54B4F19B27B36000D1EDD /* Images.xcassets in Resources */,
+				7FA3B4EA19B56C81008C645F /* icon40.png in Resources */,
+				7FA3B4E819B56C81008C645F /* icon120.png in Resources */,
+				7FA3B4EE19B56C81008C645F /* icon29.png in Resources */,
 				7FC54B4719B27B36000D1EDD /* Main_iPhone.storyboard in Resources */,
 				7FC54B3E19B27B36000D1EDD /* InfoPlist.strings in Resources */,
+				7FA3B4E919B56C81008C645F /* icon152.png in Resources */,
+				7FA3B4E719B56C81008C645F /* icon80.png in Resources */,
+				7FA3B4ED19B56C81008C645F /* icon58.png in Resources */,
+				7FA3B4EC19B56C81008C645F /* kickgirl.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

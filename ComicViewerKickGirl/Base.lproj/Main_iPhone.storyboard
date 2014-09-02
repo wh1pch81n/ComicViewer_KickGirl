@@ -14,7 +14,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="cell" textLabel="hmd-eV-NEw" detailTextLabel="xLJ-dZ-TEU" style="IBUITableViewCellStyleSubtitle" id="HmH-ho-bHG">
-                                <rect key="frame" x="0.0" y="86" width="320" height="100"/>
+                                <rect key="frame" x="0.0" y="66" width="320" height="100"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="HmH-ho-bHG" id="0Qa-G5-CrO">
                                     <rect key="frame" x="0.0" y="0.0" width="287" height="99"/>
@@ -56,6 +56,7 @@
         <scene sceneID="mNc-g5-uvI">
             <objects>
                 <navigationController definesPresentationContext="YES" id="LNS-rI-wMo" sceneMemberID="viewController">
+                    <nil key="simulatedStatusBarMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="LQZ-wn-tWO">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -70,7 +71,7 @@
         <!--Page View Controller-->
         <scene sceneID="7mi-Zd-C6f">
             <objects>
-                <pageViewController storyboardIdentifier="PageViewController" autoresizesArchivedViewToFullSize="NO" transitionStyle="scroll" navigationOrientation="vertical" spineLocation="none" id="Ttm-TS-CFc" sceneMemberID="viewController"/>
+                <pageViewController storyboardIdentifier="PageViewController" autoresizesArchivedViewToFullSize="NO" transitionStyle="scroll" pageSpacing="6" navigationOrientation="vertical" spineLocation="none" id="Ttm-TS-CFc" sceneMemberID="viewController"/>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wEZ-pY-JWJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="416" y="-446"/>
@@ -115,9 +116,10 @@
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </imageView>
                                 </subviews>
+                                <color key="backgroundColor" red="1" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                             </scrollView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.50196081399917603" green="0.0" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="CqS-CS-EDx" firstAttribute="top" secondItem="zGR-9F-Jhl" secondAttribute="bottom" id="6Ma-hQ-67r"/>
                             <constraint firstAttribute="trailing" secondItem="zGR-9F-Jhl" secondAttribute="trailing" id="LxA-WF-kXr"/>
@@ -125,6 +127,7 @@
                             <constraint firstItem="zGR-9F-Jhl" firstAttribute="leading" secondItem="qod-bq-xJL" secondAttribute="leading" id="u9m-ts-Sya"/>
                         </constraints>
                     </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <connections>
                         <outlet property="comicImageView" destination="ZRP-dW-5rg" id="LZt-jT-Znf"/>
                         <outlet property="scrollView" destination="zGR-9F-Jhl" id="Suc-1l-MdC"/>

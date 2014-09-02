@@ -27,13 +27,22 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSLog(@"%@", self.view);
-    self.canDisplayBannerAds = YES;
-    [self.scrollView setContentSize:self.comicImageView.frame.size];
+    // Do any additional setup after loading the view.
+    //NSLog(@"%d, %d", self.scrollView.contentSize.height, self.scrollView.contentSize.width);
+}
+
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    [self.scrollView setContentSize:self.view.frame.size];
     [self.scrollView setMaximumZoomScale:5];
     [self.scrollView setMinimumZoomScale:1];
     [self.scrollView setDelegate:self];
-    // Do any additional setup after loading the view.
+    [self.comicImageView setFrame:self.view.frame];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    NSLog(@"first responder? %d",[self.scrollView becomeFirstResponder]);
 }
 
 - (void)didReceiveMemoryWarning
@@ -78,12 +87,17 @@
     return self.comicImageView;
 }
 
-//- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
 //    NSLog(@"%@", scrollView);
 //    NSLog(@"%@", view);
 //    NSLog(@"%f", scale);
 //    
 //    
-//}
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+}
+
 
 @end
