@@ -64,6 +64,7 @@
 - (void)fullImageDidFinishDownloading:(NSNotification *)notification {
     CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
+    [self.contentViewCache setObject:comicRecord.fullImage forKey:indexpath];
     dispatch_async(dispatch_get_main_queue(), ^{
         CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
@@ -89,23 +90,64 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     CGSize prototypeSize = CGSizeMake(677, 1000);
-    
     float scale = self.view.frame.size.width / prototypeSize.width;
-    
     return prototypeSize.height*scale;
-    //return self.view.frame.size.height;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     CVFullImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
     
-    if (self.pendingOperations.fullDownloadersInProgress[indexPath] == nil) {
-        CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
-        CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
-        self.pendingOperations.fullDownloadersInProgress[indexPath] = downloader;
-        [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
+    //Check if image is in the cache
+    UIImage *fullImage = [self.contentViewCache objectForKey:indexPath];
+    if (fullImage) {
+        [cell setComicFullImage:fullImage];
+        [self requestImageAroundIndexpath:indexPath];
+        return cell;
     }
+    [cell clearContentView];
+    
+    UIActivityIndicatorView *view = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [view startAnimating];
+    [cell.contentView addSubview:view];
+    
+    [self requestImageForIndexPath:indexPath];
+    [self requestImageAroundIndexpath:indexPath];
+    
     return cell;
+}
+
+/**
+ calls requestImageForIndexPath: for indexpaths that is one row up and one row down from the given indexpath but only if the row is within bounds of the comicRecords array.
+ */
+- (void)requestImageAroundIndexpath:(NSIndexPath *)indexPath {
+    //try to load front and back
+    NSInteger front = indexPath.row -1;
+    NSInteger back = indexPath.row + 1;
+    if (front >= 0 && front < self.comicRecords.count) {
+        [self requestImageForIndexPath:[NSIndexPath indexPathForRow:front inSection:0]];
+    }
+    if (back >= 0 && back < self.comicRecords.count) {
+        [self requestImageForIndexPath:[NSIndexPath indexPathForRow:back inSection:0]];
+    }
+}
+
+/**
+ loads the operation that will download the image for the given indexpath
+ */
+- (void)requestImageForIndexPath:(NSIndexPath *)indexPath {
+    //if it is already cached, I do not need to make a request.
+    if ([self.contentViewCache objectForKey:indexPath]) {
+        return;
+    }
+    //if it is in the queue you do no need to make a request
+    if (self.pendingOperations.fullDownloadersInProgress[indexPath]) {
+        return;
+    }
+    
+    CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
+    CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
+    self.pendingOperations.fullDownloadersInProgress[indexPath] = downloader;
+    [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

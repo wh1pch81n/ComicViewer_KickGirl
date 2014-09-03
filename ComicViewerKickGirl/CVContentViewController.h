@@ -13,4 +13,5 @@
 @property (assign, nonatomic) NSInteger pageIndex;
 
 - (void)setComicImage:(UIImage *)img;
+- (void)clearContentView;
 @end

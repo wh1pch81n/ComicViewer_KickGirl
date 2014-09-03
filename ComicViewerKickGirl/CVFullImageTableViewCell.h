@@ -11,4 +11,5 @@
 @interface CVFullImageTableViewCell : UITableViewCell
 
 - (void)setComicFullImage:(UIImage *)img;
+- (void)clearContentView;
 @end

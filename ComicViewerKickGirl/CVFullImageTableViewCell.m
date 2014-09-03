@@ -54,9 +54,7 @@
 
     
     //remove any preexisting uiimageviews that are inside the uiscrollview
-    for (UIView *subview in self.contentView.subviews) {
-        [subview removeFromSuperview];
-    }
+    [self clearContentView];
     
     //add the uiimageview
     [self.contentView addSubview:self.comicImageView];
@@ -71,6 +69,12 @@
 - (CGSize)size:(CGSize)size thatFitsWidthProportinally:(NSInteger)width {
     float scale = width/size.width ;
     return CGSizeMake(size.width * scale, size.height * scale);
+}
+
+- (void)clearContentView {
+    for (UIView *subview in self.contentView.subviews) {
+        [subview removeFromSuperview];
+    }
 }
 
 @end
