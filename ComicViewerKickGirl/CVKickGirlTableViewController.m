@@ -91,6 +91,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
+    
     return self.comicRecords.count;
 }
 
@@ -169,6 +170,7 @@
     cvc.comicRecords = self.comicRecords;
     cvc.indexpath = ip;
     cvc.pendingOperations = self.pendingOperations;
+    NSLog(@"%@", ip);
 }
 
 
@@ -186,6 +188,17 @@
     //[self.pendingOperations.archiveXMLDownloadersInProgress removeObjectForKey:notification.userInfo[@"indexPath"]];
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.tableView reloadData];
+        NSNumber *row = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPageSeen"];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row.integerValue
+                                                    inSection:0];
+        if (row.integerValue < 0 || row.integerValue >= self.comicRecords.count) {
+            indexPath = [NSIndexPath indexPathForRow:self.comicRecords.count-1
+                                           inSection:0];
+        }
+        [self.tableView scrollToRowAtIndexPath:indexPath
+                    atScrollPosition:UITableViewScrollPositionTop
+                            animated:NO];
+        [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionTop];
     });
 }
 

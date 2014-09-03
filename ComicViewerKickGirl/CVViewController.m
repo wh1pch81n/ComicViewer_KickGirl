@@ -38,7 +38,7 @@
 {
     [super viewDidLoad];
     
-    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
     self.edgesForExtendedLayout = UIRectEdgeNone;
 	// Do any additional setup after loading the view, typically from a nib.
     { //notification add observers
@@ -50,6 +50,11 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
      [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self goToSelectedIndexPath:self];
 }
 
 - (void)didReceiveMemoryWarning
@@ -85,7 +90,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return UITableViewAutomaticDimension;
+    return 1000;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -96,6 +101,11 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     CVFullImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
+    
+    //save the current row we are on
+    if (cell) {
+        [[NSUserDefaults standardUserDefaults] setObject:@(indexPath.row) forKey:@"lastPageSeen"];
+    }
     
     //Check if image is in the cache
     UIImage *fullImage = [self.contentViewCache objectForKey:indexPath];
@@ -199,5 +209,32 @@
 //    [self.scrollView setContentOffset:CGPointMake(0, 2)];
 //}
 
+
+
+#pragma mark - reload after tableview loads 
+
+
+- (void)goToSelectedIndexPath:(id)sender {
+    NSLog(@"%@", self.indexpath);
+    NSIndexPath *indexPath = self.indexpath;
+    
+    [self.tableView scrollToRowAtIndexPath:indexPath
+                          atScrollPosition:UITableViewScrollPositionTop
+                                  animated:NO];
+    [self.tableView scrollToRowAtIndexPath:indexPath
+                          atScrollPosition:UITableViewScrollPositionTop
+                                  animated:NO];
+    [self.tableView reloadData];
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    //[self goToSelectedIndexPath:self];
+    NSLog(@"%@", self.indexpath);
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+    NSLog(@"%@", self.indexpath);
+    [self goToSelectedIndexPath:self];
+}
 
 @end
