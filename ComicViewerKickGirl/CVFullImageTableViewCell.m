@@ -25,6 +25,8 @@
     return self;
 }
 
+
+
 - (void)awakeFromNib
 {
     // Initialization code
@@ -43,14 +45,7 @@
     }
     self.comicImageView.image = img;
     
-    //resize view to be same dimensions as the image
-    [self.comicImageView sizeToFit];
-    
-    //shrink the image proportionally
-    CGSize newImgSize = [self size:self.comicImageView.frame.size
-        thatFitsWidthProportinally:self.frame.size.width];
-    [self.comicImageView setFrame:CGRectMake(0, 0, newImgSize.width, newImgSize.height)];
-    
+    [self layoutImageToMatchCell];
 
     
     //remove any preexisting uiimageviews that are inside the uiscrollview
@@ -75,6 +70,21 @@
     for (UIView *subview in self.contentView.subviews) {
         [subview removeFromSuperview];
     }
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    [self layoutImageToMatchCell];
+}
+
+- (void)layoutImageToMatchCell {
+    //resize view to be same dimensions as the image
+    [self.comicImageView sizeToFit];
+    
+    //shrink the image proportionally
+    CGSize newImgSize = [self size:self.comicImageView.frame.size
+        thatFitsWidthProportinally:self.frame.size.width];
+    [self.comicImageView setFrame:CGRectMake(0, 0, newImgSize.width, newImgSize.height)];
 }
 
 @end

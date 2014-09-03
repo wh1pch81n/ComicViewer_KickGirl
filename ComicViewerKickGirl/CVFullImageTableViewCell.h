@@ -12,4 +12,6 @@
 
 - (void)setComicFullImage:(UIImage *)img;
 - (void)clearContentView;
+- (void)layoutImageToMatchCell;
+
 @end
