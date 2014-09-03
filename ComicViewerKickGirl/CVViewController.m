@@ -13,11 +13,13 @@
 #import "CVThumbnailImageDownloader.h"
 #import "CVComicRecord.h"
 #import "CVContentViewController.h"
+#import "CVFullImageTableViewCell.h"
 
 @interface CVViewController ()
-@property (strong, nonatomic) UIPageViewController *pageViewController;
+//@property (strong, nonatomic) UIPageViewController *pageViewController;
 @property (assign, nonatomic) BOOL canRemoveFullQueueNotificationWhenDealloc;
 @property (strong, nonatomic) NSCache *contentViewCache;
+@property (strong, nonatomic) CVContentViewController *currentContentViewController;
 @end
 
 @implementation CVViewController
@@ -43,56 +45,6 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFinishDownloading:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFail:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
     }
-    {//hide navigation bar
-     // self.navigationController.navigationBarHidden = YES;
-    }
-    { //create page view controller
-        self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
-        self.pageViewController.dataSource = self;
-        
-        CVContentViewController *startingViewController = [self viewControllerAtIndexpath:self.indexpath];
-        [self.pageViewController setViewControllers:@[startingViewController]
-                                          direction:UIPageViewControllerNavigationDirectionForward
-                                           animated:NO completion:nil];
-        
-        {//Change the size of the page view controller
-         //self.pageViewController.view.frame = CGRectMake(0, 0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame)-50);
-         //left constraint
-//            [NSLayoutConstraint constraintWithItem:self.pageViewController.view
-//                                         attribute:NSLayoutAttributeLeading
-//                                         relatedBy:NSLayoutRelationEqual
-//                                            toItem:self.view
-//                                         attribute:NSLayoutAttributeLeft
-//                                        multiplier:1 constant:0];
-//            
-//            //right constraint
-//            [NSLayoutConstraint constraintWithItem:self.pageViewController.view
-//                                         attribute:NSLayoutAttributeTrailing
-//                                         relatedBy:NSLayoutRelationEqual
-//                                            toItem:self.view
-//                                         attribute:NSLayoutAttributeRight
-//                                        multiplier:1 constant:0];
-//            //top constraint
-//            [NSLayoutConstraint constraintWithItem:self.pageViewController.view
-//                                         attribute:NSLayoutAttributeTop
-//                                         relatedBy:NSLayoutRelationEqual
-//                                            toItem:self.view
-//                                         attribute:NSLayoutAttributeTop
-//                                        multiplier:1 constant:0];
-//            //bottom constraint
-//            [NSLayoutConstraint constraintWithItem:self.pageViewController.view
-//                                         attribute:NSLayoutAttributeBottom
-//                                         relatedBy:NSLayoutRelationEqual
-//                                            toItem:self.view
-//                                         attribute:NSLayoutAttributeBottom
-//                                        multiplier:1 constant:75];
-//            [self.view layoutIfNeeded];
-        }
-        [self addChildViewController:_pageViewController];
-        [self.view addSubview:_pageViewController.view];
-        [self.pageViewController didMoveToParentViewController:self];
-    }
-    // self.canDisplayBannerAds = YES;
 }
 
 - (void)dealloc {
@@ -112,11 +64,12 @@
 - (void)fullImageDidFinishDownloading:(NSNotification *)notification {
     CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
-    CVContentViewController *contentViewController = [self.contentViewCache objectForKey:indexpath];
     dispatch_async(dispatch_get_main_queue(), ^{
-        contentViewController.comicImageView.image = comicRecord.fullImage;
+        CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
+        if (cell) {
+            [cell setComicFullImage:comicRecord.fullImage];
+        }
     });
-    
     [self.pendingOperations.fullDownloadersInProgress removeObjectForKey:indexpath];
 }
 
@@ -124,60 +77,80 @@
     [[[UIAlertView alloc] initWithTitle:@"oops" message:@"try again later" delegate:nil cancelButtonTitle:nil otherButtonTitles:nil] show];
 }
 
-#pragma mark - UIPageViewControllerDataSource Protocol
+#pragma mark - UITableView Protocol
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(CVContentViewController *)contentViewController {
-    NSUInteger index = contentViewController.pageIndex;
-    if (index == self.comicRecords.count -1 || (index == NSNotFound)) {
-        return nil;
-    }
-    index++;
-    return [self viewControllerAtIndexpath:[NSIndexPath indexPathForRow:index inSection:0]];
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.comicRecords.count;
 }
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(CVContentViewController *)contentViewController {
-    NSUInteger index = contentViewController.pageIndex;
-    if ((index == 0) || (index == NSNotFound)) {
-        return nil;
-    }
-    index--;
-    return [self viewControllerAtIndexpath:[NSIndexPath indexPathForRow:index inSection:0]];
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
 }
 
-- (CVContentViewController *)viewControllerAtIndexpath:(NSIndexPath *)index {
-    if (([self.comicRecords count] == 0) || (index.row >= [self.comicRecords count])) {
-        return nil;
-    }
-    
-    CVContentViewController *contentViewController;
-    if ((contentViewController = [self.contentViewCache objectForKey:index])) {
-        return contentViewController;
-    }
-    
-    //Create a new view controller and pass suitable data
-    contentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageContentViewController"];
-    //contentViewController.imageFile = self.pageImages[index];
-    
-    //add this instance of the contentViewController to the cache so you can reference it later.
-    [self.contentViewCache setObject:contentViewController forKey:index];
-    
-    contentViewController.pageIndex = index.row;
-    
-    CVComicRecord *comicRecord = self.comicRecords[index.row];
-    if (comicRecord.fullImage) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            contentViewController.comicImageView.image = comicRecord.fullImage;
-        });
-    } else {
-        CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:index];
-        self.pendingOperations.fullDownloadersInProgress[index] = downloader;
-        [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
-    }
-    return contentViewController;
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 150;
+    //return self.view.frame.size.height;
 }
 
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CVFullImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
+    
+    CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
+    CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
+    self.pendingOperations.fullDownloadersInProgress[indexPath] = downloader;
+    [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
+    
+    return cell;
+}
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"Selected Row");
+}
 
+//#pragma mark - UIScrollView Delegate
+//
+//- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+//    return self.comicImageView;
+//}
+//
+//- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
+//    //    NSLog(@"%@", scrollView);
+//    //    NSLog(@"%@", view);
+//    //    NSLog(@"%f", scale);
+//    //
+//    //
+//}
+//
+//- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+//    static int const kPagePullTolerance = 50;
+//    NSInteger dy = scrollView.contentOffset.y; //positive y means it is above the screen.  negative means below.
+//    NSInteger scrollViewHeight = scrollView.frame.size.height;
+//    NSInteger contentSizeHeight = scrollView.contentSize.height;
+//    NSLog(@"%ld", dy);
+//    if (dy <  -kPagePullTolerance) { //scrolls beyond top
+//        NSLog(@"scrolls beyond top");
+//        [[UIApplication sharedApplication] sendAction:@selector(goToPreviousPage:)
+//                                                   to:nil from:nil forEvent:nil];
+//    }
+//    else if (dy > contentSizeHeight + kPagePullTolerance - scrollViewHeight) { //scrolls beyond bottom
+//        NSLog(@"scrolls beyond bottom");
+//        [[UIApplication sharedApplication] sendAction:@selector(goToNextPage:)
+//                                                   to:nil from:nil forEvent:nil];
+//    }
+//}
+//
+//- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+//    NSLog(@"%@", self.view);
+//    CGSize newImgSize = [self size:self.comicImageView.frame.size
+//        thatFitsWidthProportinally:self.view.frame.size.width];
+//    [self.comicImageView setFrame:CGRectMake(0, 0, newImgSize.width, newImgSize.height)];
+//
+//    //set the content size
+//    [self.scrollView setContentSize:self.comicImageView.frame.size];
+//    [self.scrollView setMaximumZoomScale:5];
+//    [self.scrollView setMinimumZoomScale:1];
+//    [self.scrollView setContentOffset:CGPointMake(0, 2)];
+//}
 
 
 @end

@@ -10,8 +10,7 @@
 
 @interface CVContentViewController : UIViewController <UIScrollViewDelegate>
 
-@property (weak, nonatomic) IBOutlet UIImageView *comicImageView;
-
 @property (assign, nonatomic) NSInteger pageIndex;
 
+- (void)setComicImage:(UIImage *)img;
 @end

@@ -9,6 +9,8 @@
 #import "CVContentViewController.h"
 
 @interface CVContentViewController ()
+
+@property (strong, nonatomic) UIImageView *comicImageView;
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 
 @end
@@ -28,57 +30,43 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    //NSLog(@"%d, %d", self.scrollView.contentSize.height, self.scrollView.contentSize.width);
 }
 
-- (void)viewWillLayoutSubviews {
-    [super viewWillLayoutSubviews];
-    [self.scrollView setContentSize:self.view.frame.size];
+- (void)setComicImage:(UIImage *)img {
+    if (self.comicImageView == nil) {
+        self.comicImageView = [[UIImageView alloc] init];
+    }
+    self.comicImageView.image = img;
+
+    //resize view to be same dimensions as the image
+    [self.comicImageView sizeToFit];
+    
+    //shrink the image proportionally
+    CGSize newImgSize = [self size:self.comicImageView.frame.size
+        thatFitsWidthProportinally:self.view.frame.size.width];
+    [self.comicImageView setFrame:CGRectMake(0, 0, newImgSize.width, newImgSize.height)];
+    
+    NSLog(@"%@", self.view);
+    NSLog(@"%@", self.view.superview);
+    
+    //remove any preexisting uiimageviews that are inside the uiscrollview
+    for (UIView *subview in self.scrollView.subviews) {
+        [subview removeFromSuperview];
+    }
+    
+    //add the uiimageview
+    [self.scrollView addSubview:self.comicImageView];
+    
+    //set the content size
+    [self.scrollView setContentSize:self.comicImageView.frame.size];
     [self.scrollView setMaximumZoomScale:5];
     [self.scrollView setMinimumZoomScale:1];
-    [self.scrollView setDelegate:self];
-    [self.comicImageView setFrame:self.view.frame];
+    [self.scrollView setContentOffset:CGPointMake(0, 2)];
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    NSLog(@"first responder? %d",[self.scrollView becomeFirstResponder]);
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
-
-
-#pragma mark - touches
-
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    NSLog(@"Touches ended");
-    
-    if (self.navigationController.isNavigationBarHidden) {
-        self.navigationController.navigationBarHidden = NO;
-    } else {
-         self.navigationController.navigationBarHidden = YES;
-    }
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    NSLog(@"touches canceled");
-    self.navigationController.navigationBarHidden = YES;
+- (CGSize)size:(CGSize)size thatFitsWidthProportinally:(NSInteger)width {
+    float scale = width/size.width ;
+    return CGSizeMake(size.width * scale, size.height * scale);
 }
 
 #pragma mark - UIScrollView Delegate
@@ -96,8 +84,36 @@
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
+    static int const kPagePullTolerance = 50;
+    NSInteger dy = scrollView.contentOffset.y; //positive y means it is above the screen.  negative means below.
+    NSInteger scrollViewHeight = scrollView.frame.size.height;
+    NSInteger contentSizeHeight = scrollView.contentSize.height;
+    NSLog(@"%ld", dy);
+    if (dy <  -kPagePullTolerance) { //scrolls beyond top
+        NSLog(@"scrolls beyond top");
+        [[UIApplication sharedApplication] sendAction:@selector(goToPreviousPage:)
+                                                   to:nil from:nil forEvent:nil];
+    }
+    else if (dy > contentSizeHeight + kPagePullTolerance - scrollViewHeight) { //scrolls beyond bottom
+        NSLog(@"scrolls beyond bottom");
+        [[UIApplication sharedApplication] sendAction:@selector(goToNextPage:)
+                                                   to:nil from:nil forEvent:nil];
+    }
 }
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+    NSLog(@"%@", self.view);
+    CGSize newImgSize = [self size:self.comicImageView.frame.size
+        thatFitsWidthProportinally:self.view.frame.size.width];
+    [self.comicImageView setFrame:CGRectMake(0, 0, newImgSize.width, newImgSize.height)];
+    
+    //set the content size
+    [self.scrollView setContentSize:self.comicImageView.frame.size];
+    [self.scrollView setMaximumZoomScale:5];
+    [self.scrollView setMinimumZoomScale:1];
+    [self.scrollView setContentOffset:CGPointMake(0, 2)];
+}
+
 
 
 @end

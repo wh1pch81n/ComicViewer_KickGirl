@@ -38,6 +38,7 @@
 		7FC54B7D19B2B12E000D1EDD /* CVKickGirlTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7C19B2B12E000D1EDD /* CVKickGirlTableViewController.m */; };
 		7FC54B8019B2C534000D1EDD /* CVContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7F19B2C534000D1EDD /* CVContentViewController.m */; };
 		7FC54B8219B3F5E4000D1EDD /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FC54B8119B3F5E4000D1EDD /* iAd.framework */; };
+		7FF437D619B788D000854F57 /* CVFullImageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FF437D519B788D000854F57 /* CVFullImageTableViewCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,8 @@
 		7FC54B7E19B2C534000D1EDD /* CVContentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVContentViewController.h; sourceTree = "<group>"; };
 		7FC54B7F19B2C534000D1EDD /* CVContentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVContentViewController.m; sourceTree = "<group>"; };
 		7FC54B8119B3F5E4000D1EDD /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		7FF437D419B788D000854F57 /* CVFullImageTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFullImageTableViewCell.h; sourceTree = "<group>"; };
+		7FF437D519B788D000854F57 /* CVFullImageTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVFullImageTableViewCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,6 +182,8 @@
 				7FC54B7C19B2B12E000D1EDD /* CVKickGirlTableViewController.m */,
 				7FC54B4B19B27B36000D1EDD /* CVViewController.h */,
 				7FC54B4C19B27B36000D1EDD /* CVViewController.m */,
+				7FF437D419B788D000854F57 /* CVFullImageTableViewCell.h */,
+				7FF437D519B788D000854F57 /* CVFullImageTableViewCell.m */,
 				7FC54B7E19B2C534000D1EDD /* CVContentViewController.h */,
 				7FC54B7F19B2C534000D1EDD /* CVContentViewController.m */,
 				7FC54B7519B28A31000D1EDD /* CVComicRecord.h */,
@@ -342,6 +347,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7FC54B4019B27B36000D1EDD /* main.m in Sources */,
+				7FF437D619B788D000854F57 /* CVFullImageTableViewCell.m in Sources */,
 				7FC54B8019B2C534000D1EDD /* CVContentViewController.m in Sources */,
 				7FC54B4419B27B36000D1EDD /* CVAppDelegate.m in Sources */,
 				7FC54B7A19B28D10000D1EDD /* CVPendingOperations.m in Sources */,

@@ -10,7 +10,7 @@
 #import <iAd/iAd.h>
 
 @class CVPendingOperations;
-@interface CVViewController : UIViewController <UIPageViewControllerDataSource>
+@interface CVViewController : UITableViewController
 
 @property (strong, nonatomic) NSArray *comicRecords;
 @property (strong, nonatomic) CVPendingOperations *pendingOperations;
