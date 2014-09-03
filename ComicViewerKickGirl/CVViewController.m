@@ -84,22 +84,27 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+    return UITableViewAutomaticDimension;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 150;
+    CGSize prototypeSize = CGSizeMake(677, 1000);
+    
+    float scale = self.view.frame.size.width / prototypeSize.width;
+    
+    return prototypeSize.height*scale;
     //return self.view.frame.size.height;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     CVFullImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
     
-    CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
-    CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
-    self.pendingOperations.fullDownloadersInProgress[indexPath] = downloader;
-    [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
-    
+    if (self.pendingOperations.fullDownloadersInProgress[indexPath] == nil) {
+        CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
+        CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
+        self.pendingOperations.fullDownloadersInProgress[indexPath] = downloader;
+        [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
+    }
     return cell;
 }
 

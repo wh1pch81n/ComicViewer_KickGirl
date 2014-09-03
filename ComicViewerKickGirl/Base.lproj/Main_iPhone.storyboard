@@ -83,22 +83,8 @@
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="vjq-9l-MDA" id="JUt-SR-8nL">
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="185"/>
                                     <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EuG-oQ-zQ5">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="185"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        </scrollView>
-                                    </subviews>
-                                    <constraints>
-                                        <constraint firstItem="EuG-oQ-zQ5" firstAttribute="leading" secondItem="JUt-SR-8nL" secondAttribute="leading" id="108-18-6JY"/>
-                                        <constraint firstAttribute="bottom" secondItem="EuG-oQ-zQ5" secondAttribute="bottom" id="Ywt-lr-msy"/>
-                                        <constraint firstItem="EuG-oQ-zQ5" firstAttribute="top" secondItem="JUt-SR-8nL" secondAttribute="top" id="by9-xY-x8X"/>
-                                        <constraint firstAttribute="trailing" secondItem="EuG-oQ-zQ5" secondAttribute="trailing" id="e4B-KJ-FKC"/>
-                                    </constraints>
+                                    <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 </tableViewCellContentView>
-                                <connections>
-                                    <outlet property="scrollView" destination="EuG-oQ-zQ5" id="JbH-cS-Q4C"/>
-                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>

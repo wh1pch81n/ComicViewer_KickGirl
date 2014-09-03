@@ -10,7 +10,5 @@
 
 @interface CVFullImageTableViewCell : UITableViewCell
 
-@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
-
 - (void)setComicFullImage:(UIImage *)img;
 @end
