@@ -123,6 +123,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     CVFullImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
     [cell.loaderGear stopAnimating];
+    [cell.text setText:[self.comicRecords[indexPath.row] title]];
     
     //Check if image is in the cache
     UIImage *fullImage = [self.contentViewCache objectForKey:indexPath];
@@ -133,7 +134,7 @@
         return cell;
     }
     
-    [cell.text setText:[self.comicRecords[indexPath.row] title]];
+    
     [cell.loaderGear startAnimating];
     
     [self requestImageForIndexPath:indexPath];
@@ -196,6 +197,9 @@
     }
    
     isAnimating = YES;
+    if (self.navigationController.navigationBar.alpha != b) {
+        return;
+    }
     [UIView animateWithDuration:animationDuration animations:^{
         [self.navigationController.navigationBar setAlpha:!b];
     } completion:^(BOOL finished) {
