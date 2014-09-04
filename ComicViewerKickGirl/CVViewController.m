@@ -123,10 +123,6 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     CVFullImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
     [cell.loaderGear stopAnimating];
-    //save the current row we are on
-    if (cell) {
-        [[NSUserDefaults standardUserDefaults] setObject:@(indexPath.row) forKey:@"lastPageSeen"];
-    }
     
     //Check if image is in the cache
     UIImage *fullImage = [self.contentViewCache objectForKey:indexPath];
@@ -138,6 +134,7 @@
     }
     
     [cell.text setText:[self.comicRecords[indexPath.row] title]];
+    [cell.loaderGear startAnimating];
     
     [self requestImageForIndexPath:indexPath];
     [self requestImageAroundIndexpath:indexPath];
@@ -176,8 +173,7 @@
         //if it is in the queue you do no need to make a request
         return;
     }
-    CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
-    [cell.loaderGear startAnimating];
+    
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     comicRecord.failedFull = NO;
     CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
@@ -188,7 +184,8 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     if (comicRecord.failedFull) {
-        [self requestImageForIndexPath:indexPath];
+        [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        //[self requestImageForIndexPath:indexPath];
     }
 }
 
@@ -205,6 +202,8 @@
         isAnimating = NO;
     }];
 }
+
+#pragma mark - Scroll
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     static int oldOffset = 0;
@@ -223,11 +222,13 @@
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (decelerate == NO) {
         [self prioritizeVisisbleCells];
+        [self setCurrentPage:[self currentlyViewedComicIndexPath].row];
     }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     [self prioritizeVisisbleCells];
+    [self setCurrentPage:[self currentlyViewedComicIndexPath].row];
 }
 
 - (void)prioritizeVisisbleCells {
@@ -267,12 +268,35 @@
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    NSArray *visible = [self.tableView indexPathsForVisibleRows];
-    self.indexpath = [visible firstObject];
+    self.indexpath = [self currentlyViewedComicIndexPath];
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     [self goToSelectedIndexPath:self];
+    [self setCurrentPage:self.indexpath.row];
 }
 
+- (NSIndexPath *)currentlyViewedComicIndexPath {
+    NSIndexPath *chosenIndexpath;
+    NSArray *visibleIndexPaths = [self.tableView indexPathsForVisibleRows];
+    chosenIndexpath = visibleIndexPaths.firstObject;
+    float center_y = self.tableView.contentOffset.y + self.tableView.frame.size.height/2;
+    
+    for (NSIndexPath *ip in visibleIndexPaths) {
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:ip];
+        if (cell) {
+            int top = CGRectGetMinY(cell.frame);
+            int bot = CGRectGetMaxY(cell.frame);
+            if (top <= center_y && center_y <= bot) {
+                chosenIndexpath = ip;
+                break;
+            }
+        }
+    }
+    return chosenIndexpath;
+}
+
+- (void)setCurrentPage:(NSInteger)page {
+    [[NSUserDefaults standardUserDefaults] setObject:@(page) forKey:@"lastPageSeen"];
+}
 @end
