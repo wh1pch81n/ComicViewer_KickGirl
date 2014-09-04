@@ -70,15 +70,16 @@
 
 
 - (void)fullImageDidFinishDownloading:(NSNotification *)notification {
-    //CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
+    CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
     UIImage *fullImage = notification.userInfo[@"fullImage"];
+    
+    comicRecord.failedFull = NO;
     
     [self.contentViewCache setObject:fullImage forKey:indexpath];
     dispatch_async(dispatch_get_main_queue(), ^{
         CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
-            cell.text.hidden = YES;
             [cell.loaderGear stopAnimating];
             [cell setComicFullImage:fullImage];
             [self.tableView reloadData];
@@ -89,15 +90,16 @@
 }
 
 - (void)fullImageDidFail:(NSNotification *)notification {
-    //CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
+    CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
     //UIImage *fullImage = notification.userInfo[@"fullImage"];
-    
+    comicRecord.failedFull = YES;
     dispatch_async(dispatch_get_main_queue(), ^{
         CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
-            cell.text.hidden = NO;
+            cell.text.text = @"Tap to Reload";
             [cell.loaderGear stopAnimating];
+            [cell setComicFullImage:nil];
         }
     });
 }
@@ -135,7 +137,7 @@
         return cell;
     }
     
-    [cell.text setHidden:YES];
+    [cell.text setText:[self.comicRecords[indexPath.row] title]];
     [cell.loaderGear startAnimating];
     
     [self requestImageForIndexPath:indexPath];
@@ -176,18 +178,16 @@
         return;
     }
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
+    comicRecord.failedFull = NO;
     CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
     self.pendingOperations.fullDownloadersInProgress[indexPath] = downloader;
     [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
-    if (cell) {
-        if ([[cell text] isHidden] == NO) {
-            [self requestImageForIndexPath:indexPath];
-            return;
-        }
+    CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
+    if (comicRecord.failedFull) {
+        [self requestImageForIndexPath:indexPath];
     }
 }
 
@@ -253,7 +253,7 @@
 #pragma mark - reload after tableview loads 
 
 
-- (void)goToSelectedIndexPath:(id)sender {    
+- (void)goToSelectedIndexPath:(id)sender {
     NSIndexPath *indexPath = self.indexpath;
     
     [self.tableView scrollToRowAtIndexPath:indexPath

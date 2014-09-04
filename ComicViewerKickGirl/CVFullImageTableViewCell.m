@@ -48,6 +48,7 @@
     if (img) {
         [self layoutImageToMatchCell];
     }
+    [self.contentView bringSubviewToFront:self.text];
 }
 
 - (CGSize)size:(CGSize)size thatFitsWidthProportinally:(NSInteger)width {
