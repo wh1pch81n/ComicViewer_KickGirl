@@ -46,9 +46,6 @@
         thatFitsWidthProportinally:self.view.frame.size.width];
     [self.comicImageView setFrame:CGRectMake(0, 0, newImgSize.width, newImgSize.height)];
     
-    NSLog(@"%@", self.view);
-    NSLog(@"%@", self.view.superview);
-    
     //remove any preexisting uiimageviews that are inside the uiscrollview
     for (UIView *subview in self.scrollView.subviews) {
         [subview removeFromSuperview];
@@ -75,20 +72,12 @@
     return self.comicImageView;
 }
 
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
-//    NSLog(@"%@", scrollView);
-//    NSLog(@"%@", view);
-//    NSLog(@"%f", scale);
-//    
-//    
-}
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     static int const kPagePullTolerance = 50;
     NSInteger dy = scrollView.contentOffset.y; //positive y means it is above the screen.  negative means below.
     NSInteger scrollViewHeight = scrollView.frame.size.height;
     NSInteger contentSizeHeight = scrollView.contentSize.height;
-    NSLog(@"%ld", dy);
+
     if (dy <  -kPagePullTolerance) { //scrolls beyond top
         NSLog(@"scrolls beyond top");
         [[UIApplication sharedApplication] sendAction:@selector(goToPreviousPage:)

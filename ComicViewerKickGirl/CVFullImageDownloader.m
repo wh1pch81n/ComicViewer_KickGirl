@@ -43,7 +43,7 @@ static NSString *const kIndexPath = @"indexPath";
             return;
         }
         text = [self cleanText:text];
-        // NSLog(@"%@", text);
+        
         NSData *textData = [text dataUsingEncoding:NSUTF8StringEncoding];
         NSXMLParser *xmlparser = [[NSXMLParser alloc] initWithData:textData];
         xmlparser.delegate = self;

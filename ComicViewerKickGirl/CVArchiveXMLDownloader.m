@@ -59,7 +59,6 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
             [self operationFailed];
             return;
         }
-        //NSLog(@"Done Parsing");
         //Send notification
         //YOu should be able to have information about title,date,thumbImageURL, and fullPageURL
         [self operationCompleted];
@@ -113,7 +112,6 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
         } else if ([class isEqualToString:kComicArrayObject]) {
             if (self.comicRecord) {
                 [self.comicRecords addObject:self.comicRecord];
-                // NSLog(@"Added new Comic Record: %@", self.comicRecord);
             }
             self.comicRecord = [CVComicRecord new];
         } else if ([class isEqualToString:kComicThumbDate]) {

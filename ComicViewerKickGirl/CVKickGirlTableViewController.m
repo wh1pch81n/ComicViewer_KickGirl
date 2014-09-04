@@ -170,7 +170,6 @@
     cvc.comicRecords = self.comicRecords;
     cvc.indexpath = ip;
     cvc.pendingOperations = self.pendingOperations;
-    NSLog(@"%@", ip);
 }
 
 

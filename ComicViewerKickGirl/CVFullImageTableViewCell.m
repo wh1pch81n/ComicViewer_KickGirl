@@ -53,12 +53,6 @@
     
     //add the uiimageview
     [self.contentView addSubview:self.comicImageView];
-    
-    //set the content size
-    //[self.scrollView setContentSize:self.comicImageView.frame.size];
-    //[self.scrollView setMaximumZoomScale:5];
-    //[self.scrollView setMinimumZoomScale:1];
-    //[self.scrollView setContentOffset:CGPointMake(0, 2)];
 }
 
 - (CGSize)size:(CGSize)size thatFitsWidthProportinally:(NSInteger)width {

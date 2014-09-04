@@ -38,9 +38,13 @@
 {
     [super viewDidLoad];
     
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    self.edgesForExtendedLayout = UIRectEdgeNone;
-	// Do any additional setup after loading the view, typically from a nib.
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    
+    {//make the view's origin start at behind the navigationbar rather than under it
+        self.edgesForExtendedLayout = UIRectEdgeAll;
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
+    // Do any additional setup after loading the view, typically from a nib.
     { //notification add observers
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFinishDownloading:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFail:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
@@ -117,6 +121,11 @@
     [cell clearContentView];
     
     UIActivityIndicatorView *view = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    view.color = [UIColor orangeColor];
+    view.frame = CGRectMake(cell.contentView.center.x - (view.frame.size.width/2),
+                            cell.contentView.center.y,
+                            view.frame.size.width,
+                            view.frame.size.height);
     [view startAnimating];
     [cell.contentView addSubview:view];
     
@@ -161,61 +170,43 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"Selected Row");
+    static float animationDuration = 0.5;
+    [self toggleNavBarWithAnimationDuration:animationDuration];
 }
 
-//#pragma mark - UIScrollView Delegate
-//
-//- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
-//    return self.comicImageView;
-//}
-//
-//- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
-//    //    NSLog(@"%@", scrollView);
-//    //    NSLog(@"%@", view);
-//    //    NSLog(@"%f", scale);
-//    //
-//    //
-//}
-//
-//- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-//    static int const kPagePullTolerance = 50;
-//    NSInteger dy = scrollView.contentOffset.y; //positive y means it is above the screen.  negative means below.
-//    NSInteger scrollViewHeight = scrollView.frame.size.height;
-//    NSInteger contentSizeHeight = scrollView.contentSize.height;
-//    NSLog(@"%ld", dy);
-//    if (dy <  -kPagePullTolerance) { //scrolls beyond top
-//        NSLog(@"scrolls beyond top");
-//        [[UIApplication sharedApplication] sendAction:@selector(goToPreviousPage:)
-//                                                   to:nil from:nil forEvent:nil];
-//    }
-//    else if (dy > contentSizeHeight + kPagePullTolerance - scrollViewHeight) { //scrolls beyond bottom
-//        NSLog(@"scrolls beyond bottom");
-//        [[UIApplication sharedApplication] sendAction:@selector(goToNextPage:)
-//                                                   to:nil from:nil forEvent:nil];
-//    }
-//}
-//
-//- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
-//    NSLog(@"%@", self.view);
-//    CGSize newImgSize = [self size:self.comicImageView.frame.size
-//        thatFitsWidthProportinally:self.view.frame.size.width];
-//    [self.comicImageView setFrame:CGRectMake(0, 0, newImgSize.width, newImgSize.height)];
-//
-//    //set the content size
-//    [self.scrollView setContentSize:self.comicImageView.frame.size];
-//    [self.scrollView setMaximumZoomScale:5];
-//    [self.scrollView setMinimumZoomScale:1];
-//    [self.scrollView setContentOffset:CGPointMake(0, 2)];
-//}
+- (void)toggleNavBarWithAnimationDuration:(NSTimeInterval)seconds {
+    __block BOOL isAnimating = NO;
+    float animationDuration = seconds;
+    if (isAnimating) {
+        return;
+    }
+    if (self.navigationController.isNavigationBarHidden) {
+        [self.navigationController.navigationBar setAlpha:1];
+        self.navigationController.navigationBarHidden = NO;
+    } else {
+        isAnimating = YES;
+        [self.navigationController.navigationBar setAlpha:1];
+        [UIView animateWithDuration:animationDuration
+                         animations:^{
+                             [self.navigationController.navigationBar setAlpha:0];
+                         }
+                         completion:^(BOOL finished) {
+                             isAnimating = NO;
+                             self.navigationController.navigationBarHidden = YES;
+                         }];
+    }
+}
 
-
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    self.navigationController.navigationBarHidden = YES;
+}
 
 #pragma mark - reload after tableview loads 
 
 
 - (void)goToSelectedIndexPath:(id)sender {
-    NSLog(@"%@", self.indexpath);
+    static float animationDuration = 2;
+    
     NSIndexPath *indexPath = self.indexpath;
     
     [self.tableView scrollToRowAtIndexPath:indexPath
@@ -225,15 +216,15 @@
                           atScrollPosition:UITableViewScrollPositionTop
                                   animated:NO];
     [self.tableView reloadData];
+    [self toggleNavBarWithAnimationDuration:animationDuration];
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    //[self goToSelectedIndexPath:self];
-    NSLog(@"%@", self.indexpath);
+    NSArray *visible = [self.tableView indexPathsForVisibleRows];
+    self.indexpath = [visible firstObject];
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
-    NSLog(@"%@", self.indexpath);
     [self goToSelectedIndexPath:self];
 }
 
