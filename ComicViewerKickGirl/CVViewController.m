@@ -147,15 +147,16 @@
  calls requestImageForIndexPath: for indexpaths that is one row up and one row down from the given indexpath but only if the row is within bounds of the comicRecords array.
  */
 - (void)requestImageAroundIndexpath:(NSIndexPath *)indexPath {
+    int limit = self.contentViewCache.countLimit/2;
     //try to load front and back
-    NSInteger front = indexPath.row -5;
-    for (;front < indexPath.row; front++) {
+    NSInteger front = indexPath.row -1;
+    for (;front > indexPath.row - limit; front--) {
         if (front >= 0 && front < self.comicRecords.count) {
             [self requestImageForIndexPath:[NSIndexPath indexPathForRow:front inSection:0]];
         }
     }
-    NSInteger back = indexPath.row + 5;
-    for (; back > indexPath.row; back--) {
+    NSInteger back = indexPath.row + 1;
+    for (; back < indexPath.row + limit; back++) {
         if (back >= 0 && back < self.comicRecords.count) {
             [self requestImageForIndexPath:[NSIndexPath indexPathForRow:back inSection:0]];
         }

@@ -64,11 +64,19 @@
     [self reloadArchive:self];
     
     {//setup navigation bar
-        UIBarButtonItem *reload = [[UIBarButtonItem alloc] initWithTitle:@"Reload" style:UIBarButtonItemStylePlain target:self action:@selector(reloadArchive:)];
+        UIBarButtonItem *reload = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadArchive:)];
         [self.navigationItem setRightBarButtonItem:reload];
         
         [self.navigationItem setTitle:@"Kick Girl"];
+        
+        UIBarButtonItem *source = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(goToKickGirlWebsite:)];
+        [self.navigationItem setLeftBarButtonItem:source];
     }
+}
+
+- (IBAction)goToKickGirlWebsite:(id)sender {
+    NSURL *url = [NSURL URLWithString:@"http://www.kick-girl.com"];
+    [[UIApplication sharedApplication] openURL:url];
 }
 
 - (IBAction)reloadArchive:(id)sender {
