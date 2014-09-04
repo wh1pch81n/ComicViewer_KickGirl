@@ -167,21 +167,14 @@
  loads the operation that will download the image for the given indexpath
  */
 - (void)requestImageForIndexPath:(NSIndexPath *)indexPath {
-//    if (self.tableView.isDecelerating) {
-//        //is momentum scrolling should not request.
-//        return;
-//    }
-    
     if ([self.contentViewCache objectForKey:indexPath]) {
         //if it is already cached, I do not need to make a request.
         return;
     }
-    
     if (self.pendingOperations.fullDownloadersInProgress[indexPath]) {
         //if it is in the queue you do no need to make a request
         return;
     }
-    
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
     self.pendingOperations.fullDownloadersInProgress[indexPath] = downloader;
@@ -189,70 +182,78 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    static float animationDuration = 0.5;
-    
     CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
     if (cell) {
-        NSArray *subviews = [cell.contentView subviews];
-        UIView *subview = subviews.firstObject;
-        if ([subview isKindOfClass:[UILabel class]]) {
+        if ([[cell text] isHidden] == NO) {
             [self requestImageForIndexPath:indexPath];
             return;
         }
     }
-    [self toggleNavBarWithAnimationDuration:animationDuration];
 }
 
-
-- (void)toggleNavBarWithAnimationDuration:(NSTimeInterval)seconds {
+- (void)hideNavigationbar:(BOOL)b animationDuration:(NSTimeInterval)animationDuration {
     __block BOOL isAnimating = NO;
-    float animationDuration = seconds;
     if (isAnimating) {
         return;
     }
-    if (self.navigationController.isNavigationBarHidden) {
-        [self.navigationController.navigationBar setAlpha:1];
-        self.navigationController.navigationBarHidden = NO;
-    } else {
-        isAnimating = YES;
-        [self.navigationController.navigationBar setAlpha:1];
-        [UIView animateWithDuration:animationDuration
-                         animations:^{
-                             [self.navigationController.navigationBar setAlpha:0];
-                         }
-                         completion:^(BOOL finished) {
-                             isAnimating = NO;
-                             self.navigationController.navigationBarHidden = YES;
-                         }];
+   
+    isAnimating = YES;
+    [UIView animateWithDuration:animationDuration animations:^{
+        [self.navigationController.navigationBar setAlpha:!b];
+    } completion:^(BOOL finished) {
+        isAnimating = NO;
+    }];
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    static int oldOffset = 0;
+    int newOffset = scrollView.contentOffset.y;
+    
+    int dy = newOffset- oldOffset;
+    if (dy > 0) {
+        [self hideNavigationbar:YES animationDuration:0.5];
+    } else  if (dy < 0) {
+        [self hideNavigationbar:NO animationDuration:0.5];
+    }
+    
+    oldOffset = newOffset;
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (decelerate == NO) {
+        [self prioritizeVisisbleCells];
     }
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
-    self.navigationController.navigationBarHidden = YES;
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self prioritizeVisisbleCells];
 }
 
-//- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-//    if (decelerate == NO) {
-//        [self loadImagesForOnscreenCells];
-//    }
-//}
-//
-//- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-//    [self loadImagesForOnscreenCells];
-//}
-//
-//- (void)loadImagesForOnscreenCells {
-//    [[self tableView] reloadData];
-//    //    NSArray *ips = [self.tableView indexPathsForVisibleRows];
-////    [self.tableView reloadRowsAtIndexPaths:ips withRowAnimation:UITableViewRowAnimationNone];
-//}
+- (void)prioritizeVisisbleCells {
+     NSArray *ips = [self.tableView indexPathsForVisibleRows];
+    [self.pendingOperations.fullDownloaderOperationQueue setSuspended:YES];
+    NSArray *activeIndexPaths = [self.pendingOperations.fullDownloadersInProgress allKeys];
+    //add visible cells to queue first
+    NSSet *visible = [NSSet setWithArray:ips];
+    NSMutableSet *invisible = [NSMutableSet setWithArray:activeIndexPaths];
+    [invisible minusSet:visible];
+    
+    for (NSIndexPath *ip in invisible) {
+        NSOperation *op = self.pendingOperations.fullDownloadersInProgress[ip];
+        [op setQueuePriority:NSOperationQueuePriorityNormal];
+    }
+    
+    for (NSIndexPath *ip in visible) {
+        NSOperation *op = self.pendingOperations.fullDownloadersInProgress[ip];
+        [op setQueuePriority:NSOperationQueuePriorityHigh];
+    }
+    [self.pendingOperations.fullDownloaderOperationQueue setSuspended:NO];
+}
 
 #pragma mark - reload after tableview loads 
 
 
-- (void)goToSelectedIndexPath:(id)sender {
-    static float animationDuration = 2;
-    
+- (void)goToSelectedIndexPath:(id)sender {    
     NSIndexPath *indexPath = self.indexpath;
     
     [self.tableView scrollToRowAtIndexPath:indexPath
@@ -262,7 +263,6 @@
                           atScrollPosition:UITableViewScrollPositionTop
                                   animated:NO];
     [self.tableView reloadData];
-    [self toggleNavBarWithAnimationDuration:animationDuration];
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {

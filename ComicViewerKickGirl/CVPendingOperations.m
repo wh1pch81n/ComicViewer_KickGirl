@@ -49,7 +49,7 @@
     if (_fullDownloaderOperationQueue == nil) {
         _fullDownloaderOperationQueue = [NSOperationQueue new];
         _fullDownloaderOperationQueue.name = @"archiveXMLDownloaderOperationQueue";
-        _fullDownloaderOperationQueue.maxConcurrentOperationCount = 1; //debugging to make it slower
+        _fullDownloaderOperationQueue.maxConcurrentOperationCount = 2; //debugging to make it slower
     }
     return _fullDownloaderOperationQueue;
 }
