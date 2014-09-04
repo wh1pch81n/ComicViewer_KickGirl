@@ -10,8 +10,11 @@
 
 @interface CVFullImageTableViewCell : UITableViewCell
 
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loaderGear;
+@property (weak, nonatomic) IBOutlet UILabel *text;
+
 - (void)setComicFullImage:(UIImage *)img;
-- (void)clearContentView;
+//- (void)clearContentView;
 - (void)layoutImageToMatchCell;
 
 @end

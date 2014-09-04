@@ -42,33 +42,17 @@
 - (void)setComicFullImage:(UIImage *)img {
     if (self.comicImageView == nil) {
         self.comicImageView = [[UIImageView alloc] init];
+        [self.contentView addSubview:self.comicImageView];
     }
     self.comicImageView.image = img;
-    
-    [self layoutImageToMatchCell];
-
-    
-    //remove any preexisting uiimageviews that are inside the uiscrollview
-    [self clearContentView];
-    
-    //add the uiimageview
-    [self.contentView addSubview:self.comicImageView];
+    if (img) {
+        [self layoutImageToMatchCell];
+    }
 }
 
 - (CGSize)size:(CGSize)size thatFitsWidthProportinally:(NSInteger)width {
     float scale = width/size.width ;
     return CGSizeMake(size.width * scale, size.height * scale);
-}
-
-- (void)clearContentView {
-    for (UIView *subview in self.contentView.subviews) {
-        [subview removeFromSuperview];
-    }
-}
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    [self layoutImageToMatchCell];
 }
 
 - (void)layoutImageToMatchCell {

@@ -78,6 +78,8 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
+            cell.text.hidden = YES;
+            [cell.loaderGear stopAnimating];
             [cell setComicFullImage:fullImage];
             [self.tableView reloadData];
             //[self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
@@ -91,14 +93,13 @@
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
     //UIImage *fullImage = notification.userInfo[@"fullImage"];
     
-    CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
-    if (cell) {
-        [cell clearContentView];
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, cell.contentView.frame.size.width, 50)];
-        [cell.contentView addSubview:label];
-        label.textColor = [UIColor whiteColor];
-        label.text = @"Tap to Reload";
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
+        if (cell) {
+            cell.text.hidden = NO;
+            [cell.loaderGear stopAnimating];
+        }
+    });
 }
 
 #pragma mark - UITableView Protocol
@@ -119,7 +120,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     CVFullImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
-    
+    [cell.loaderGear stopAnimating];
     //save the current row we are on
     if (cell) {
         [[NSUserDefaults standardUserDefaults] setObject:@(indexPath.row) forKey:@"lastPageSeen"];
@@ -127,21 +128,15 @@
     
     //Check if image is in the cache
     UIImage *fullImage = [self.contentViewCache objectForKey:indexPath];
+    [cell setComicFullImage:fullImage];
+    [self requestImageAroundIndexpath:indexPath];
+    
     if (fullImage) {
-        [cell setComicFullImage:fullImage];
-        [self requestImageAroundIndexpath:indexPath];
         return cell;
     }
-    [cell clearContentView];
     
-    UIActivityIndicatorView *view = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    view.color = [UIColor orangeColor];
-    view.frame = CGRectMake(cell.contentView.center.x - (view.frame.size.width/2),
-                            cell.contentView.center.y,
-                            view.frame.size.width,
-                            view.frame.size.height);
-    [view startAnimating];
-    [cell.contentView addSubview:view];
+    [cell.text setHidden:YES];
+    [cell.loaderGear startAnimating];
     
     [self requestImageForIndexPath:indexPath];
     [self requestImageAroundIndexpath:indexPath];
@@ -154,13 +149,17 @@
  */
 - (void)requestImageAroundIndexpath:(NSIndexPath *)indexPath {
     //try to load front and back
-    NSInteger front = indexPath.row -1;
-    NSInteger back = indexPath.row + 1;
-    if (front >= 0 && front < self.comicRecords.count) {
-        [self requestImageForIndexPath:[NSIndexPath indexPathForRow:front inSection:0]];
+    NSInteger front = indexPath.row -5;
+    for (;front < indexPath.row; front++) {
+        if (front >= 0 && front < self.comicRecords.count) {
+            [self requestImageForIndexPath:[NSIndexPath indexPathForRow:front inSection:0]];
+        }
     }
-    if (back >= 0 && back < self.comicRecords.count) {
-        [self requestImageForIndexPath:[NSIndexPath indexPathForRow:back inSection:0]];
+    NSInteger back = indexPath.row + 5;
+    for (; back > indexPath.row; back--) {
+        if (back >= 0 && back < self.comicRecords.count) {
+            [self requestImageForIndexPath:[NSIndexPath indexPathForRow:back inSection:0]];
+        }
     }
 }
 
@@ -168,10 +167,10 @@
  loads the operation that will download the image for the given indexpath
  */
 - (void)requestImageForIndexPath:(NSIndexPath *)indexPath {
-    if (self.tableView.isDecelerating) {
-        //is momentum scrolling should not request.
-        return;
-    }
+//    if (self.tableView.isDecelerating) {
+//        //is momentum scrolling should not request.
+//        return;
+//    }
     
     if ([self.contentViewCache objectForKey:indexPath]) {
         //if it is already cached, I do not need to make a request.
@@ -232,21 +231,21 @@
     self.navigationController.navigationBarHidden = YES;
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-    if (decelerate == NO) {
-        [self loadImagesForOnscreenCells];
-    }
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    [self loadImagesForOnscreenCells];
-}
-
-- (void)loadImagesForOnscreenCells {
-    [[self tableView] reloadData];
-    //    NSArray *ips = [self.tableView indexPathsForVisibleRows];
-//    [self.tableView reloadRowsAtIndexPaths:ips withRowAnimation:UITableViewRowAnimationNone];
-}
+//- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+//    if (decelerate == NO) {
+//        [self loadImagesForOnscreenCells];
+//    }
+//}
+//
+//- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+//    [self loadImagesForOnscreenCells];
+//}
+//
+//- (void)loadImagesForOnscreenCells {
+//    [[self tableView] reloadData];
+//    //    NSArray *ips = [self.tableView indexPathsForVisibleRows];
+////    [self.tableView reloadRowsAtIndexPaths:ips withRowAnimation:UITableViewRowAnimationNone];
+//}
 
 #pragma mark - reload after tableview loads 
 
