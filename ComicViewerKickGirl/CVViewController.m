@@ -138,7 +138,6 @@
     }
     
     [cell.text setText:[self.comicRecords[indexPath.row] title]];
-    [cell.loaderGear startAnimating];
     
     [self requestImageForIndexPath:indexPath];
     [self requestImageAroundIndexpath:indexPath];
@@ -177,6 +176,8 @@
         //if it is in the queue you do no need to make a request
         return;
     }
+    CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+    [cell.loaderGear startAnimating];
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     comicRecord.failedFull = NO;
     CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
