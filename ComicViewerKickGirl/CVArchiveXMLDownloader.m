@@ -32,12 +32,10 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
 
 - (void)main {
     @autoreleasepool {
-#warning remember to add cancelation checking later
         //get xml from website
         NSError *err;
         NSString *text = [NSString stringWithContentsOfURL:self.urlOfArchive encoding:NSUTF8StringEncoding error:&err];
-        if (err) {
-            //create error message
+        if (err || !text || [text isEqualToString:@""]) {
             [self operationFailed];
             return;
         }

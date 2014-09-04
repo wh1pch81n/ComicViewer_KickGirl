@@ -17,10 +17,20 @@
 
 @property (strong, nonatomic) CVPendingOperations *pendingOperations;
 @property (strong, nonatomic) NSArray *comicRecords;
+@property (strong, nonatomic) NSCache *thumbnailImageCache;
 
 @end
 
 @implementation CVKickGirlTableViewController
+
+- (NSCache *)thumbnailImageCache {
+    if (_thumbnailImageCache) {
+        return _thumbnailImageCache;
+    }
+    _thumbnailImageCache = [NSCache new];
+    _thumbnailImageCache.countLimit = 50;
+    return _thumbnailImageCache;
+}
 
 - (NSArray *)comicRecords {
     if (_comicRecords) {
@@ -112,51 +122,21 @@
     cell.detailTextLabel.text = comicRecord.date;
     
     //if thumb nail results in nil then start downloader for it.
-    if ((cell.imageView.image = comicRecord.thumbnailImage) == nil) {
+
+    if ((cell.imageView.image = [self.thumbnailImageCache objectForKey:indexPath]) == nil) {
+        if ([tableView isDragging] || [tableView isDecelerating]) {
+            //don't load images if scrolling
+            return;
+        }
+        if (self.pendingOperations.thumbnailDownloadersInProgress[indexPath]) {
+            //It is already on the queue.
+            return;
+        }
         CVThumbnailImageDownloader *downloader = [[CVThumbnailImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
         self.pendingOperations.thumbnailDownloadersInProgress[indexPath] = downloader;
         [self.pendingOperations.thumbnailDownloaderOperationQueue addOperation:downloader];
     }
 }
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
 
 #pragma mark - Navigation
 
@@ -170,19 +150,26 @@
     cvc.comicRecords = self.comicRecords;
     cvc.indexpath = ip;
     cvc.pendingOperations = self.pendingOperations;
+    
+//    NSMutableArray *reverseArray = [NSMutableArray new];
+//    NSArray *comicRecords = [NSMutableArray arrayWithArray:self.comicRecords];
+//    for (id element in [comicRecords reverseObjectEnumerator]) {
+//        [reverseArray addObject:element];
+//    }
+//    cvc.comicRecords = reverseArray;
 }
-
-
 
 #pragma mark - notifications
 
 - (void)archiveDidFinishDownloading:(NSNotification *)notification {
-    NSMutableArray *reverseArray = [NSMutableArray new];
-    NSArray *comicRecords = [NSMutableArray arrayWithArray:notification.userInfo[@"comicRecords"]];
-    for (id element in [comicRecords reverseObjectEnumerator]) {
-        [reverseArray addObject:element];
-    }
-    self.comicRecords = reverseArray;
+//    NSMutableArray *reverseArray = [NSMutableArray new];
+//    NSArray *comicRecords = [NSMutableArray arrayWithArray:notification.userInfo[@"comicRecords"]];
+//    for (id element in [comicRecords reverseObjectEnumerator]) {
+//        [reverseArray addObject:element];
+//    }
+//    self.comicRecords = reverseArray;
+    
+    self.comicRecords = notification.userInfo[@"comicRecords"];
     
     //[self.pendingOperations.archiveXMLDownloadersInProgress removeObjectForKey:notification.userInfo[@"indexPath"]];
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -191,7 +178,7 @@
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row.integerValue
                                                     inSection:0];
         if (row.integerValue < 0 || row.integerValue >= self.comicRecords.count) {
-            indexPath = [NSIndexPath indexPathForRow:self.comicRecords.count-1
+            indexPath = [NSIndexPath indexPathForRow:0
                                            inSection:0];
         }
         [self.tableView scrollToRowAtIndexPath:indexPath
@@ -203,26 +190,49 @@
 
 - (void)archiveDidFail:(NSNotification *)notification {
 #warning implement error later
+    [[[UIAlertView alloc] initWithTitle:@"No Internet Connection" message:@"Unable to load images at this time.  Try again later" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
 }
 
 - (void)thumbnailDidFinishDownloading:(NSNotification *)notification {
     NSDictionary *userinfo = notification.userInfo;
     NSIndexPath *indexpath = userinfo[@"indexPath"];
-    CVComicRecord *comicRecord = userinfo[@"comicRecord"];
+    //CVComicRecord *comicRecord = userinfo[@"comicRecord"];
+    UIImage *thumbnailImage = userinfo[@"thumbnailImage"];
     
+    [self.thumbnailImageCache setObject:thumbnailImage forKey:indexpath];
     [self.pendingOperations.thumbnailDownloadersInProgress removeObjectForKey:indexpath];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
-            cell.imageView.image = comicRecord.thumbnailImage;
+            cell.imageView.image = thumbnailImage;
             [self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationAutomatic];
         }
     });
 }
 
 - (void)thumbnailDidFail:(NSNotification *)notification {
-#warning implement error later
+    NSDictionary *userinfo = notification.userInfo;
+    //NSIndexPath *indexpath = userinfo[@"indexPath"];
+    CVComicRecord *comicRecord = userinfo[@"comicRecord"];
+    comicRecord.failedThumb = YES;
+}
+
+#pragma mark - UIScrollView Delegate
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (decelerate == NO) {
+        [self loadImagesForOnscreenCells];
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self loadImagesForOnscreenCells];
+}
+
+- (void)loadImagesForOnscreenCells {
+    NSArray *ips = [self.tableView indexPathsForVisibleRows];
+    [self.tableView reloadRowsAtIndexPaths:ips withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 @end

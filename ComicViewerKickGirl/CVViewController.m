@@ -28,7 +28,7 @@
         return _contentViewCache;
     }
     _contentViewCache = [NSCache new];
-    _contentViewCache.countLimit = 5;
+    _contentViewCache.countLimit = 10;
     
     return _contentViewCache;
 }
@@ -70,20 +70,35 @@
 
 
 - (void)fullImageDidFinishDownloading:(NSNotification *)notification {
-    CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
+    //CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
-    [self.contentViewCache setObject:comicRecord.fullImage forKey:indexpath];
+    UIImage *fullImage = notification.userInfo[@"fullImage"];
+    
+    [self.contentViewCache setObject:fullImage forKey:indexpath];
     dispatch_async(dispatch_get_main_queue(), ^{
         CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
-            [cell setComicFullImage:comicRecord.fullImage];
+            [cell setComicFullImage:fullImage];
+            [self.tableView reloadData];
+            //[self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
         }
     });
     [self.pendingOperations.fullDownloadersInProgress removeObjectForKey:indexpath];
 }
 
 - (void)fullImageDidFail:(NSNotification *)notification {
-    [[[UIAlertView alloc] initWithTitle:@"oops" message:@"try again later" delegate:nil cancelButtonTitle:nil otherButtonTitles:nil] show];
+    //CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
+    NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
+    //UIImage *fullImage = notification.userInfo[@"fullImage"];
+    
+    CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
+    if (cell) {
+        [cell clearContentView];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, cell.contentView.frame.size.width, 50)];
+        [cell.contentView addSubview:label];
+        label.textColor = [UIColor whiteColor];
+        label.text = @"Tap to Reload";
+    }
 }
 
 #pragma mark - UITableView Protocol
@@ -153,12 +168,18 @@
  loads the operation that will download the image for the given indexpath
  */
 - (void)requestImageForIndexPath:(NSIndexPath *)indexPath {
-    //if it is already cached, I do not need to make a request.
-    if ([self.contentViewCache objectForKey:indexPath]) {
+    if (self.tableView.isDecelerating) {
+        //is momentum scrolling should not request.
         return;
     }
-    //if it is in the queue you do no need to make a request
+    
+    if ([self.contentViewCache objectForKey:indexPath]) {
+        //if it is already cached, I do not need to make a request.
+        return;
+    }
+    
     if (self.pendingOperations.fullDownloadersInProgress[indexPath]) {
+        //if it is in the queue you do no need to make a request
         return;
     }
     
@@ -170,8 +191,19 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     static float animationDuration = 0.5;
+    
+    CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+    if (cell) {
+        NSArray *subviews = [cell.contentView subviews];
+        UIView *subview = subviews.firstObject;
+        if ([subview isKindOfClass:[UILabel class]]) {
+            [self requestImageForIndexPath:indexPath];
+            return;
+        }
+    }
     [self toggleNavBarWithAnimationDuration:animationDuration];
 }
+
 
 - (void)toggleNavBarWithAnimationDuration:(NSTimeInterval)seconds {
     __block BOOL isAnimating = NO;
@@ -198,6 +230,22 @@
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     self.navigationController.navigationBarHidden = YES;
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (decelerate == NO) {
+        [self loadImagesForOnscreenCells];
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self loadImagesForOnscreenCells];
+}
+
+- (void)loadImagesForOnscreenCells {
+    [[self tableView] reloadData];
+    //    NSArray *ips = [self.tableView indexPathsForVisibleRows];
+//    [self.tableView reloadRowsAtIndexPaths:ips withRowAnimation:UITableViewRowAnimationNone];
 }
 
 #pragma mark - reload after tableview loads 
