@@ -210,7 +210,14 @@
         UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
             cell.imageView.image = thumbnailImage;
-            [self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            BOOL wasSelected = NO;
+            if (cell.isSelected) {
+                wasSelected = YES;
+            }
+            [self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
+            if (wasSelected) {
+                [self.tableView selectRowAtIndexPath:indexpath animated:NO scrollPosition:UITableViewScrollPositionNone];
+            }
         }
     });
 }
