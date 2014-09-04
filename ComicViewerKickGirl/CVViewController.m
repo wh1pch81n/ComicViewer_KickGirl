@@ -12,14 +12,13 @@
 #import "CVFullImageDownloader.h"
 #import "CVThumbnailImageDownloader.h"
 #import "CVComicRecord.h"
-#import "CVContentViewController.h"
 #import "CVFullImageTableViewCell.h"
 
 @interface CVViewController ()
 //@property (strong, nonatomic) UIPageViewController *pageViewController;
 @property (assign, nonatomic) BOOL canRemoveFullQueueNotificationWhenDealloc;
 @property (strong, nonatomic) NSCache *contentViewCache;
-@property (strong, nonatomic) CVContentViewController *currentContentViewController;
+
 @end
 
 @implementation CVViewController
