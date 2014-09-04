@@ -32,14 +32,6 @@
     return _thumbnailImageCache;
 }
 
-- (NSArray *)comicRecords {
-    if (_comicRecords) {
-        return _comicRecords;
-    }
-    _comicRecords = [NSArray new];
-    return _comicRecords;
-}
-
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -68,12 +60,40 @@
     }
     
     self.pendingOperations = [CVPendingOperations new];
-    CVArchiveXMLDownloader *downloader = [[CVArchiveXMLDownloader alloc] init];
-    //NSIndexPath *ip = [NSIndexPath indexPathForRow:0 inSection:0];
-    //self.pendingOperations.archiveXMLDownloadersInProgress[ip] = downloader;
-    [self.pendingOperations.archiveXMLDownloaderOperationQueue addOperation:downloader];
     
-   }
+    [self reloadArchive:self];
+    
+    {//setup navigation bar
+        UIBarButtonItem *reload = [[UIBarButtonItem alloc] initWithTitle:@"Reload" style:UIBarButtonItemStylePlain target:self action:@selector(reloadArchive:)];
+        [self.navigationItem setRightBarButtonItem:reload];
+        
+        [self.navigationItem setTitle:@"Kick Girl"];
+    }
+}
+
+- (IBAction)reloadArchive:(id)sender {
+    CVArchiveXMLDownloader *downloader = [[CVArchiveXMLDownloader alloc] init];
+    [self.pendingOperations.archiveXMLDownloaderOperationQueue addOperation:downloader];
+
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (self.comicRecords) {
+        [self.tableView reloadData];
+        NSNumber *row = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPageSeen"];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row.integerValue
+                                                    inSection:0];
+        if (row.integerValue < 0 || row.integerValue >= self.comicRecords.count) {
+            indexPath = [NSIndexPath indexPathForRow:0
+                                           inSection:0];
+        }
+        [self.tableView scrollToRowAtIndexPath:indexPath
+                              atScrollPosition:UITableViewScrollPositionTop
+                                      animated:NO];
+        [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionTop];
+    }
+}
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION object:nil];
@@ -150,28 +170,13 @@
     cvc.comicRecords = self.comicRecords;
     cvc.indexpath = ip;
     cvc.pendingOperations = self.pendingOperations;
-    
-//    NSMutableArray *reverseArray = [NSMutableArray new];
-//    NSArray *comicRecords = [NSMutableArray arrayWithArray:self.comicRecords];
-//    for (id element in [comicRecords reverseObjectEnumerator]) {
-//        [reverseArray addObject:element];
-//    }
-//    cvc.comicRecords = reverseArray;
 }
 
 #pragma mark - notifications
 
 - (void)archiveDidFinishDownloading:(NSNotification *)notification {
-//    NSMutableArray *reverseArray = [NSMutableArray new];
-//    NSArray *comicRecords = [NSMutableArray arrayWithArray:notification.userInfo[@"comicRecords"]];
-//    for (id element in [comicRecords reverseObjectEnumerator]) {
-//        [reverseArray addObject:element];
-//    }
-//    self.comicRecords = reverseArray;
-    
     self.comicRecords = notification.userInfo[@"comicRecords"];
     
-    //[self.pendingOperations.archiveXMLDownloadersInProgress removeObjectForKey:notification.userInfo[@"indexPath"]];
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.tableView reloadData];
         NSNumber *row = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPageSeen"];
@@ -189,7 +194,6 @@
 }
 
 - (void)archiveDidFail:(NSNotification *)notification {
-#warning implement error later
     [[[UIAlertView alloc] initWithTitle:@"No Internet Connection" message:@"Unable to load images at this time.  Try again later" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
 }
 
@@ -232,7 +236,7 @@
 
 - (void)loadImagesForOnscreenCells {
     NSArray *ips = [self.tableView indexPathsForVisibleRows];
-    [self.tableView reloadRowsAtIndexPaths:ips withRowAnimation:UITableViewRowAnimationAutomatic];
+    [self.tableView reloadRowsAtIndexPaths:ips withRowAnimation:UITableViewRowAnimationNone];
 }
 
 @end

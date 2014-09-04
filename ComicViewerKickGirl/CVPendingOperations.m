@@ -19,7 +19,7 @@
     if (_archiveXMLDownloaderOperationQueue == nil) {
         _archiveXMLDownloaderOperationQueue = [NSOperationQueue new];
         _archiveXMLDownloaderOperationQueue.name = @"archiveXMLDownloaderOperationQueue";
-        _archiveXMLDownloaderOperationQueue.maxConcurrentOperationCount = 1; //debugging to make it slower
+        // _archiveXMLDownloaderOperationQueue.maxConcurrentOperationCount = 1; //debugging to make it slower
     }
     return _archiveXMLDownloaderOperationQueue;
 }
@@ -34,7 +34,7 @@
     if (_thumbnailDownloaderOperationQueue == nil) {
         _thumbnailDownloaderOperationQueue = [NSOperationQueue new];
         _thumbnailDownloaderOperationQueue.name = @"thumbnailDownloaderOperationQueue";
-        _thumbnailDownloaderOperationQueue.maxConcurrentOperationCount = 1; //debugging to make it slower
+        //_thumbnailDownloaderOperationQueue.maxConcurrentOperationCount = 1; //debugging to make it slower
     }
     return _thumbnailDownloaderOperationQueue;
 }
