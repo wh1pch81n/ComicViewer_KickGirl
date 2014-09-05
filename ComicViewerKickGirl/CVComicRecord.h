@@ -31,9 +31,6 @@
  */
 @property (nonatomic, strong) NSURL *fullImageURL;
 
-@property (nonatomic, strong) UIImage *thumbnailImage;
-@property (nonatomic, strong) UIImage *fullImage;
-
 @property (assign, nonatomic) BOOL failedThumb;
 @property (assign, nonatomic) BOOL failedFull;
 @end

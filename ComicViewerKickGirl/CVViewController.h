@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <iAd/iAd.h>
 
-@interface CVViewController : UIViewController
+@class CVPendingOperations;
+@interface CVViewController : UITableViewController
+
+@property (strong, nonatomic) NSArray *comicRecords;
+@property (strong, nonatomic) NSIndexPath *indexpath;
 
 @end

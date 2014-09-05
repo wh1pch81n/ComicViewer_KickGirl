@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7FC54B2F19B27B36000D1EDD"
-               BuildableName = "ComicViewerKickGirl.app"
-               BlueprintName = "ComicViewerKickGirl"
+               BuildableName = "Kick Girl.app"
+               BlueprintName = "Kick Girl"
                ReferencedContainer = "container:ComicViewerKickGirl.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -43,8 +43,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7FC54B2F19B27B36000D1EDD"
-            BuildableName = "ComicViewerKickGirl.app"
-            BlueprintName = "ComicViewerKickGirl"
+            BuildableName = "Kick Girl.app"
+            BlueprintName = "Kick Girl"
             ReferencedContainer = "container:ComicViewerKickGirl.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -54,7 +54,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
@@ -62,8 +62,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7FC54B2F19B27B36000D1EDD"
-            BuildableName = "ComicViewerKickGirl.app"
-            BlueprintName = "ComicViewerKickGirl"
+            BuildableName = "Kick Girl.app"
+            BlueprintName = "Kick Girl"
             ReferencedContainer = "container:ComicViewerKickGirl.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -80,8 +80,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7FC54B2F19B27B36000D1EDD"
-            BuildableName = "ComicViewerKickGirl.app"
-            BlueprintName = "ComicViewerKickGirl"
+            BuildableName = "Kick Girl.app"
+            BlueprintName = "Kick Girl"
             ReferencedContainer = "container:ComicViewerKickGirl.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

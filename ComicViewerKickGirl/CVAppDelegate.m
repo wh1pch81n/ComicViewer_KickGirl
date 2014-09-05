@@ -13,6 +13,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    [self registerUserDefaults];
     return YES;
 }
 							
@@ -41,6 +42,10 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+- (void)registerUserDefaults {
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"lastPageSeen":@(-1)}];
 }
 
 @end
