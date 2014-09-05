@@ -17,20 +17,14 @@
 @interface CVViewController ()
 
 @property (assign, nonatomic) BOOL canRemoveFullQueueNotificationWhenDealloc;
-@property (strong, nonatomic) NSCache *contentViewCache;
+@property (weak, nonatomic) NSCache *contentViewCache;
 
 @end
 
 @implementation CVViewController
 
 - (NSCache *)contentViewCache{
-    if (_contentViewCache) {
-        return _contentViewCache;
-    }
-    _contentViewCache = [NSCache new];
-    _contentViewCache.countLimit = 10;
-    
-    return _contentViewCache;
+    return CVPendingOperations.sharedInstance.fullDownloaderCache;
 }
 
 - (void)viewDidLoad

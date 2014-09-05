@@ -15,9 +15,11 @@
 
 @property (nonatomic, strong) NSMutableDictionary *thumbnailDownloadersInProgress;
 @property (nonatomic, strong) NSOperationQueue *thumbnailDownloaderOperationQueue;
+@property (nonatomic, strong) NSCache *thumbnailDownloaderCache;
 
 @property (nonatomic, strong) NSMutableDictionary *fullDownloadersInProgress;
 @property (nonatomic, strong) NSOperationQueue *fullDownloaderOperationQueue;
+@property (nonatomic, strong) NSCache *fullDownloaderCache;
 
 
 +(CVPendingOperations *)sharedInstance;

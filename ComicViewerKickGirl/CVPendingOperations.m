@@ -35,6 +35,15 @@
 
 #pragma mark - thumbnail
 
+- (NSCache *)thumbnailDownloaderCache {
+    if (_thumbnailDownloaderCache) {
+        return _thumbnailDownloaderCache;
+    }
+    _thumbnailDownloaderCache = [NSCache new];
+    _thumbnailDownloaderCache.countLimit = 100;
+    return _thumbnailDownloaderCache;
+}
+
 - (NSMutableDictionary *)thumbnailDownloadersInProgress {
     return _thumbnailDownloadersInProgress?:(_thumbnailDownloadersInProgress = [NSMutableDictionary new]);
 }
@@ -49,6 +58,15 @@
 }
 
 #pragma mark - fullimage
+
+- (NSCache *)fullDownloaderCache {
+    if(_fullDownloaderCache) {
+        return _fullDownloaderCache;
+    }
+    _fullDownloaderCache = [NSCache new];
+    _fullDownloaderCache.countLimit = 10;
+    return _fullDownloaderCache;
+}
 
 - (NSMutableDictionary *)fullDownloadersInProgress {
     return _fullDownloadersInProgress?:(_fullDownloadersInProgress = [NSMutableDictionary new]);

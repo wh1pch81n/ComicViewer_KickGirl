@@ -16,19 +16,14 @@
 @interface CVKickGirlTableViewController ()
 
 @property (strong, nonatomic) NSArray *comicRecords;
-@property (strong, nonatomic) NSCache *thumbnailImageCache;
+@property (weak, nonatomic) NSCache *thumbnailImageCache;
 
 @end
 
 @implementation CVKickGirlTableViewController
 
 - (NSCache *)thumbnailImageCache {
-    if (_thumbnailImageCache) {
-        return _thumbnailImageCache;
-    }
-    _thumbnailImageCache = [NSCache new];
-    _thumbnailImageCache.countLimit = 50;
-    return _thumbnailImageCache;
+    return CVPendingOperations.sharedInstance.thumbnailDownloaderCache;
 }
 
 - (id)initWithStyle:(UITableViewStyle)style
