@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7FC54B2F19B27B36000D1EDD"
                BuildableName = "ComicViewerKickGirl.app"
-               BlueprintName = "ComicViewerKickGirl"
+               BlueprintName = "Kick Girl"
                ReferencedContainer = "container:ComicViewerKickGirl.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,7 +44,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7FC54B2F19B27B36000D1EDD"
             BuildableName = "ComicViewerKickGirl.app"
-            BlueprintName = "ComicViewerKickGirl"
+            BlueprintName = "Kick Girl"
             ReferencedContainer = "container:ComicViewerKickGirl.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,7 +63,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7FC54B2F19B27B36000D1EDD"
             BuildableName = "ComicViewerKickGirl.app"
-            BlueprintName = "ComicViewerKickGirl"
+            BlueprintName = "Kick Girl"
             ReferencedContainer = "container:ComicViewerKickGirl.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -81,7 +81,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7FC54B2F19B27B36000D1EDD"
             BuildableName = "ComicViewerKickGirl.app"
-            BlueprintName = "ComicViewerKickGirl"
+            BlueprintName = "Kick Girl"
             ReferencedContainer = "container:ComicViewerKickGirl.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

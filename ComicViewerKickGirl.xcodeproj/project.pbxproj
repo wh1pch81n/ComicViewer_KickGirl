@@ -22,7 +22,6 @@
 		7FC54B4019B27B36000D1EDD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B3F19B27B36000D1EDD /* main.m */; };
 		7FC54B4419B27B36000D1EDD /* CVAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B4319B27B36000D1EDD /* CVAppDelegate.m */; };
 		7FC54B4719B27B36000D1EDD /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7FC54B4519B27B36000D1EDD /* Main_iPhone.storyboard */; };
-		7FC54B4A19B27B36000D1EDD /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7FC54B4819B27B36000D1EDD /* Main_iPad.storyboard */; };
 		7FC54B4D19B27B36000D1EDD /* CVViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B4C19B27B36000D1EDD /* CVViewController.m */; };
 		7FC54B4F19B27B36000D1EDD /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7FC54B4E19B27B36000D1EDD /* Images.xcassets */; };
 		7FC54B5619B27B36000D1EDD /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FC54B5519B27B36000D1EDD /* XCTest.framework */; };
@@ -70,7 +69,6 @@
 		7FC54B4219B27B36000D1EDD /* CVAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CVAppDelegate.h; sourceTree = "<group>"; };
 		7FC54B4319B27B36000D1EDD /* CVAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CVAppDelegate.m; sourceTree = "<group>"; };
 		7FC54B4619B27B36000D1EDD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
-		7FC54B4919B27B36000D1EDD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
 		7FC54B4B19B27B36000D1EDD /* CVViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CVViewController.h; sourceTree = "<group>"; };
 		7FC54B4C19B27B36000D1EDD /* CVViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CVViewController.m; sourceTree = "<group>"; };
 		7FC54B4E19B27B36000D1EDD /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -174,7 +172,6 @@
 				7FC54B4219B27B36000D1EDD /* CVAppDelegate.h */,
 				7FC54B4319B27B36000D1EDD /* CVAppDelegate.m */,
 				7FC54B4519B27B36000D1EDD /* Main_iPhone.storyboard */,
-				7FC54B4819B27B36000D1EDD /* Main_iPad.storyboard */,
 				7FC54B7B19B2B12E000D1EDD /* CVKickGirlTableViewController.h */,
 				7FC54B7C19B2B12E000D1EDD /* CVKickGirlTableViewController.m */,
 				7FC54B4B19B27B36000D1EDD /* CVViewController.h */,
@@ -237,9 +234,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7FC54B2F19B27B36000D1EDD /* ComicViewerKickGirl */ = {
+		7FC54B2F19B27B36000D1EDD /* Kick Girl */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7FC54B6519B27B36000D1EDD /* Build configuration list for PBXNativeTarget "ComicViewerKickGirl" */;
+			buildConfigurationList = 7FC54B6519B27B36000D1EDD /* Build configuration list for PBXNativeTarget "Kick Girl" */;
 			buildPhases = (
 				7FC54B2C19B27B36000D1EDD /* Sources */,
 				7FC54B2D19B27B36000D1EDD /* Frameworks */,
@@ -249,7 +246,7 @@
 			);
 			dependencies = (
 			);
-			name = ComicViewerKickGirl;
+			name = "Kick Girl";
 			productName = ComicViewerKickGirl;
 			productReference = 7FC54B3019B27B36000D1EDD /* ComicViewerKickGirl.app */;
 			productType = "com.apple.product-type.application";
@@ -300,7 +297,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7FC54B2F19B27B36000D1EDD /* ComicViewerKickGirl */,
+				7FC54B2F19B27B36000D1EDD /* Kick Girl */,
 				7FC54B5319B27B36000D1EDD /* ComicViewerKickGirlTests */,
 			);
 		};
@@ -311,7 +308,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7FC54B4A19B27B36000D1EDD /* Main_iPad.storyboard in Resources */,
 				7FA3B4EB19B56C81008C645F /* icon76.png in Resources */,
 				7FC54B4F19B27B36000D1EDD /* Images.xcassets in Resources */,
 				7FA3B4EA19B56C81008C645F /* icon40.png in Resources */,
@@ -367,7 +363,7 @@
 /* Begin PBXTargetDependency section */
 		7FC54B5A19B27B36000D1EDD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 7FC54B2F19B27B36000D1EDD /* ComicViewerKickGirl */;
+			target = 7FC54B2F19B27B36000D1EDD /* Kick Girl */;
 			targetProxy = 7FC54B5919B27B36000D1EDD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -387,14 +383,6 @@
 				7FC54B4619B27B36000D1EDD /* Base */,
 			);
 			name = Main_iPhone.storyboard;
-			sourceTree = "<group>";
-		};
-		7FC54B4819B27B36000D1EDD /* Main_iPad.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				7FC54B4919B27B36000D1EDD /* Base */,
-			);
-			name = Main_iPad.storyboard;
 			sourceTree = "<group>";
 		};
 		7FC54B5E19B27B36000D1EDD /* InfoPlist.strings */ = {
@@ -558,7 +546,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7FC54B6519B27B36000D1EDD /* Build configuration list for PBXNativeTarget "ComicViewerKickGirl" */ = {
+		7FC54B6519B27B36000D1EDD /* Build configuration list for PBXNativeTarget "Kick Girl" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7FC54B6619B27B36000D1EDD /* Debug */,

@@ -72,6 +72,11 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    self.navigationController.navigationBar.alpha = 1;
+    {//make the view's origin start at behind the navigationbar rather than under it
+        self.edgesForExtendedLayout = UIRectEdgeNone;
+        self.automaticallyAdjustsScrollViewInsets = YES;
+    }
     if (self.comicRecords) {
         [self.tableView reloadData];
         NSNumber *row = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPageSeen"];

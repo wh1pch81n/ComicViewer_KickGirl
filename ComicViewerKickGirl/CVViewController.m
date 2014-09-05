@@ -32,11 +32,7 @@
     [super viewDidLoad];
     
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    
-    {//make the view's origin start at behind the navigationbar rather than under it
-        self.edgesForExtendedLayout = UIRectEdgeAll;
-        self.automaticallyAdjustsScrollViewInsets = NO;
-    }
+
     // Do any additional setup after loading the view, typically from a nib.
     { //notification add observers
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFinishDownloading:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
@@ -51,6 +47,10 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    {//make the view's origin start at behind the navigationbar rather than under it
+        self.edgesForExtendedLayout = UIRectEdgeAll;
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
     [self goToSelectedIndexPath:self];
 }
 
@@ -143,16 +143,17 @@
 - (void)requestImageAroundIndexpath:(NSIndexPath *)indexPath {
     NSInteger limit = self.contentViewCache.countLimit/2;
     //try to load front and back
-    NSInteger front = indexPath.row -1;
-    for (;front > indexPath.row - limit; front--) {
-        if (front >= 0 && front < self.comicRecords.count) {
-            [self requestImageForIndexPath:[NSIndexPath indexPathForRow:front inSection:0]];
-        }
-    }
     NSInteger back = indexPath.row + 1;
     for (; back < indexPath.row + limit; back++) {
         if (back >= 0 && back < self.comicRecords.count) {
             [self requestImageForIndexPath:[NSIndexPath indexPathForRow:back inSection:0]];
+        }
+    }
+    
+    NSInteger front = indexPath.row -1;
+    for (;front > indexPath.row - limit; front--) {
+        if (front >= 0 && front < self.comicRecords.count) {
+            [self requestImageForIndexPath:[NSIndexPath indexPathForRow:front inSection:0]];
         }
     }
 }
@@ -264,6 +265,7 @@
                           atScrollPosition:UITableViewScrollPositionTop
                                   animated:NO];
     [self.tableView reloadData];
+    [self hideNavigationbar:NO animationDuration:0.2];
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
