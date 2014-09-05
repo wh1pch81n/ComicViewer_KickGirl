@@ -13,7 +13,6 @@
 @interface CVViewController : UITableViewController
 
 @property (strong, nonatomic) NSArray *comicRecords;
-@property (strong, nonatomic) CVPendingOperations *pendingOperations;
 @property (strong, nonatomic) NSIndexPath *indexpath;
 
 @end

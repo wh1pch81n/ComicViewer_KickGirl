@@ -15,7 +15,6 @@
 
 @interface CVKickGirlTableViewController ()
 
-@property (strong, nonatomic) CVPendingOperations *pendingOperations;
 @property (strong, nonatomic) NSArray *comicRecords;
 @property (strong, nonatomic) NSCache *thumbnailImageCache;
 
@@ -44,13 +43,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    
     { //add notifications
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(archiveDidFinishDownloading:) name:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(archiveDidFail:) name:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOAD_FAILED_NOTIFICATION object:nil];
@@ -58,8 +50,6 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(thumbnailDidFinishDownloading:) name:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(thumbnailDidFail:) name:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION object:nil];
     }
-    
-    self.pendingOperations = [CVPendingOperations new];
     
     [self reloadArchive:self];
     
@@ -81,7 +71,7 @@
 
 - (IBAction)reloadArchive:(id)sender {
     CVArchiveXMLDownloader *downloader = [[CVArchiveXMLDownloader alloc] init];
-    [self.pendingOperations.archiveXMLDownloaderOperationQueue addOperation:downloader];
+    [CVPendingOperations.sharedInstance.archiveXMLDownloaderOperationQueue addOperation:downloader];
 
 }
 
@@ -118,28 +108,16 @@
 }
 
 #pragma mark - Table view data source
-/*
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    // Return the number of sections.
-    return 1;
-}
-*/
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    // Return the number of rows in the section.
-    
-    return self.comicRecords.count;
+ return self.comicRecords.count;
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
-    
-    // Configure the cell...
-    
     return cell;
 }
 
@@ -156,13 +134,13 @@
             //don't load images if scrolling
             return;
         }
-        if (self.pendingOperations.thumbnailDownloadersInProgress[indexPath]) {
+        if ([CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[indexPath]) {
             //It is already on the queue.
             return;
         }
         CVThumbnailImageDownloader *downloader = [[CVThumbnailImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
-        self.pendingOperations.thumbnailDownloadersInProgress[indexPath] = downloader;
-        [self.pendingOperations.thumbnailDownloaderOperationQueue addOperation:downloader];
+        CVPendingOperations.sharedInstance.thumbnailDownloadersInProgress[indexPath] = downloader;
+        [CVPendingOperations.sharedInstance.thumbnailDownloaderOperationQueue addOperation:downloader];
     }
 }
 
@@ -177,7 +155,6 @@
     NSIndexPath *ip = [self.tableView indexPathForSelectedRow];
     cvc.comicRecords = self.comicRecords;
     cvc.indexpath = ip;
-    cvc.pendingOperations = self.pendingOperations;
 }
 
 #pragma mark - notifications
@@ -212,7 +189,7 @@
     UIImage *thumbnailImage = userinfo[@"thumbnailImage"];
     
     [self.thumbnailImageCache setObject:thumbnailImage forKey:indexpath];
-    [self.pendingOperations.thumbnailDownloadersInProgress removeObjectForKey:indexpath];
+    [CVPendingOperations.sharedInstance.thumbnailDownloadersInProgress removeObjectForKey:indexpath];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];

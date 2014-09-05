@@ -19,4 +19,7 @@
 @property (nonatomic, strong) NSMutableDictionary *fullDownloadersInProgress;
 @property (nonatomic, strong) NSOperationQueue *fullDownloaderOperationQueue;
 
+
++(CVPendingOperations *)sharedInstance;
+
 @end

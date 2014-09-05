@@ -10,6 +10,15 @@
 
 @implementation CVPendingOperations
 
++(CVPendingOperations *)sharedInstance {
+    static CVPendingOperations *_instance = nil;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        _instance = [[self alloc] init];
+    });
+    return _instance;
+}
+
 #pragma mark - ARchive
 - (NSMutableDictionary *)archiveXMLDownloadersInProgress {
     return _archiveXMLDownloadersInProgress?:(_archiveXMLDownloadersInProgress = [NSMutableDictionary new]);

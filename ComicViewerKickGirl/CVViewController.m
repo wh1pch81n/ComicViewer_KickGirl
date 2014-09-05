@@ -15,7 +15,7 @@
 #import "CVFullImageTableViewCell.h"
 
 @interface CVViewController ()
-//@property (strong, nonatomic) UIPageViewController *pageViewController;
+
 @property (assign, nonatomic) BOOL canRemoveFullQueueNotificationWhenDealloc;
 @property (strong, nonatomic) NSCache *contentViewCache;
 
@@ -86,7 +86,7 @@
             //[self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
         }
     });
-    [self.pendingOperations.fullDownloadersInProgress removeObjectForKey:indexpath];
+    [CVPendingOperations.sharedInstance.fullDownloadersInProgress removeObjectForKey:indexpath];
 }
 
 - (void)fullImageDidFail:(NSNotification *)notification {
@@ -147,7 +147,7 @@
  calls requestImageForIndexPath: for indexpaths that is one row up and one row down from the given indexpath but only if the row is within bounds of the comicRecords array.
  */
 - (void)requestImageAroundIndexpath:(NSIndexPath *)indexPath {
-    int limit = self.contentViewCache.countLimit/2;
+    NSInteger limit = self.contentViewCache.countLimit/2;
     //try to load front and back
     NSInteger front = indexPath.row -1;
     for (;front > indexPath.row - limit; front--) {
@@ -171,7 +171,7 @@
         //if it is already cached, I do not need to make a request.
         return;
     }
-    if (self.pendingOperations.fullDownloadersInProgress[indexPath]) {
+    if (CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath]) {
         //if it is in the queue you do no need to make a request
         return;
     }
@@ -179,8 +179,8 @@
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     comicRecord.failedFull = NO;
     CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
-    self.pendingOperations.fullDownloadersInProgress[indexPath] = downloader;
-    [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
+    CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath] = downloader;
+    [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue addOperation:downloader];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -238,23 +238,23 @@
 
 - (void)prioritizeVisisbleCells {
      NSArray *ips = [self.tableView indexPathsForVisibleRows];
-    [self.pendingOperations.fullDownloaderOperationQueue setSuspended:YES];
-    NSArray *activeIndexPaths = [self.pendingOperations.fullDownloadersInProgress allKeys];
+    [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:YES];
+    NSArray *activeIndexPaths = [CVPendingOperations.sharedInstance.fullDownloadersInProgress allKeys];
     //add visible cells to queue first
     NSSet *visible = [NSSet setWithArray:ips];
     NSMutableSet *invisible = [NSMutableSet setWithArray:activeIndexPaths];
     [invisible minusSet:visible];
     
     for (NSIndexPath *ip in invisible) {
-        NSOperation *op = self.pendingOperations.fullDownloadersInProgress[ip];
+        NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
         [op setQueuePriority:NSOperationQueuePriorityNormal];
     }
     
     for (NSIndexPath *ip in visible) {
-        NSOperation *op = self.pendingOperations.fullDownloadersInProgress[ip];
+        NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
         [op setQueuePriority:NSOperationQueuePriorityHigh];
     }
-    [self.pendingOperations.fullDownloaderOperationQueue setSuspended:NO];
+    [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:NO];
 }
 
 #pragma mark - reload after tableview loads 
