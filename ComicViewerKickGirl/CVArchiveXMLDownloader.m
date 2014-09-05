@@ -32,12 +32,10 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
 
 - (void)main {
     @autoreleasepool {
-#warning remember to add cancelation checking later
         //get xml from website
         NSError *err;
         NSString *text = [NSString stringWithContentsOfURL:self.urlOfArchive encoding:NSUTF8StringEncoding error:&err];
-        if (err) {
-            //create error message
+        if (err || !text || [text isEqualToString:@""]) {
             [self operationFailed];
             return;
         }
@@ -59,7 +57,6 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
             [self operationFailed];
             return;
         }
-        //NSLog(@"Done Parsing");
         //Send notification
         //YOu should be able to have information about title,date,thumbImageURL, and fullPageURL
         [self operationCompleted];
@@ -113,7 +110,6 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
         } else if ([class isEqualToString:kComicArrayObject]) {
             if (self.comicRecord) {
                 [self.comicRecords addObject:self.comicRecord];
-                // NSLog(@"Added new Comic Record: %@", self.comicRecord);
             }
             self.comicRecord = [CVComicRecord new];
         } else if ([class isEqualToString:kComicThumbDate]) {

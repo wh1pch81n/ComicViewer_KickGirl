@@ -16,11 +16,13 @@ NSString *const kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION = @"kCOMI
 #pragma mark - constants
 static NSString *const kComicRecord = @"comicRecord";
 static NSString *const kIndexPath = @"indexPath";
+static NSString *const kFullImage = @"fullImage";
 
 @interface CVFullImageDownloader ()
 
 @property (strong, nonatomic) CVComicRecord *comicRecord;
 @property (strong, nonatomic) NSIndexPath *indexPath;
+@property (strong, nonatomic) UIImage *fullImage;
 
 @end
 
@@ -36,23 +38,26 @@ static NSString *const kIndexPath = @"indexPath";
 
 - (void)main {
     @autoreleasepool {
-        NSError *err;
-        NSString *text = [NSString stringWithContentsOfURL:self.comicRecord.fullImagePageURL encoding:NSUTF8StringEncoding error:&err];
-        if (self.isCancelled || err) {
-            [self failedOperation];
-            return;
+        if (self.comicRecord.fullImageURL == nil){
+            NSError *err;
+            NSString *text = [NSString stringWithContentsOfURL:self.comicRecord.fullImagePageURL
+                                                      encoding:NSUTF8StringEncoding error:&err];
+            if (self.isCancelled || err) {
+                [self failedOperation];
+                return;
+            }
+            text = [self cleanText:text];
+            
+            NSData *textData = [text dataUsingEncoding:NSUTF8StringEncoding];
+            NSXMLParser *xmlparser = [[NSXMLParser alloc] initWithData:textData];
+            xmlparser.delegate = self;
+            
+            if (self.isCancelled || ([xmlparser parse] == NO)) {
+                [self failedOperation];
+                return;
+            }
         }
-        text = [self cleanText:text];
-        // NSLog(@"%@", text);
-        NSData *textData = [text dataUsingEncoding:NSUTF8StringEncoding];
-        NSXMLParser *xmlparser = [[NSXMLParser alloc] initWithData:textData];
-        xmlparser.delegate = self;
-        [xmlparser parse];
-        if (self.isCancelled) {
-            [self failedOperation];
-            return;
-        }
-        
+    
         //download full images
         NSData *imgData = [NSData dataWithContentsOfURL:self.comicRecord.fullImageURL];
         if (self.isCancelled) {
@@ -60,11 +65,11 @@ static NSString *const kIndexPath = @"indexPath";
             return;
         }
         UIImage *img = [UIImage imageWithData:imgData];
-        if (self.isCancelled) {
+        if (self.isCancelled || !img) {
             [self failedOperation];
             return;
         }
-        self.comicRecord.fullImage = img;
+        self.fullImage = img;
         
         [self completedOperation];
     }
@@ -75,7 +80,8 @@ static NSString *const kIndexPath = @"indexPath";
                                                         object:self
                                                       userInfo:@{
                                                                  kComicRecord: self.comicRecord,
-                                                                 kIndexPath: self.indexPath
+                                                                 kIndexPath: self.indexPath,
+                                                                 kFullImage: self.fullImage
                                                                  }];
 }
 
@@ -85,7 +91,8 @@ static NSString *const kIndexPath = @"indexPath";
                                                         object:self
                                                       userInfo:@{
                                                                  kComicRecord: self.comicRecord,
-                                                                 kIndexPath: self.indexPath
+                                                                 kIndexPath: self.indexPath,
+                                                                 kFullImage: self.fullImage,
                                                                  }];
 }
 

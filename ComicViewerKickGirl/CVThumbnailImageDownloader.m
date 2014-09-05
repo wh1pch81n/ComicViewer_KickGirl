@@ -16,11 +16,13 @@ NSString *const kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION = @"kCOMI
 #pragma mark - constants
 static NSString *const kComicRecord = @"comicRecord";
 static NSString *const kIndexPath = @"indexPath";
+static NSString *const kThumbnailImage = @"thumbnailImage";
 
 @interface CVThumbnailImageDownloader ()
 
-@property (nonatomic, strong) CVComicRecord *comicRecord;
+@property (nonatomic, strong, readonly) CVComicRecord *comicRecord;
 @property (nonatomic, strong) NSIndexPath *indexpath;
+@property (nonatomic, strong) UIImage *thumbImage;
 
 @end
 
@@ -46,30 +48,27 @@ static NSString *const kIndexPath = @"indexPath";
             [self failedOperation];
             return;
         }
-        self.comicRecord.thumbnailImage = img;
+        
+        self.thumbImage = img;
     
         [self succesfulOperation];
     }
 }
 
 - (void)failedOperation {
-    self.comicRecord.failedThumb = YES;
-    [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION
-                                                        object:self
-                                                      userInfo:@{
-                                                                 kComicRecord:self.comicRecord,
-                                                                 kIndexPath:self.indexpath
-                                                                 }];
+    NSDictionary *d = @{kComicRecord:self.comicRecord,
+                        kIndexPath:self.indexpath,
+                        kThumbnailImage:self.thumbImage
+                        };
+    [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION object:self userInfo:d];
 }
 
 - (void)succesfulOperation {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION
-                                                            object:self
-                                                          userInfo:@{
-                                                                     kComicRecord:self.comicRecord,
-                                                                     kIndexPath:self.indexpath
-                                                                     }];
-
+    NSDictionary *d = @{kComicRecord:self.comicRecord,
+                        kIndexPath:self.indexpath,
+                        kThumbnailImage:self.thumbImage
+                        };
+    [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION object:self userInfo:d];
 }
 
 @end

@@ -12,64 +12,46 @@
 #import "CVFullImageDownloader.h"
 #import "CVThumbnailImageDownloader.h"
 #import "CVComicRecord.h"
-#import "CVContentViewController.h"
+#import "CVFullImageTableViewCell.h"
 
 @interface CVViewController ()
-@property (strong, nonatomic) UIPageViewController *pageViewController;
+
 @property (assign, nonatomic) BOOL canRemoveFullQueueNotificationWhenDealloc;
-@property (strong, nonatomic) NSCache *contentViewCache;
+@property (weak, nonatomic) NSCache *contentViewCache;
+
 @end
 
-@implementation CVViewController {
-    BOOL wasTapped;
-}
+@implementation CVViewController
 
 - (NSCache *)contentViewCache{
-    if (_contentViewCache) {
-        return _contentViewCache;
-    }
-    _contentViewCache = [NSCache new];
-    _contentViewCache.countLimit = 5;
-    
-    return _contentViewCache;
+    return CVPendingOperations.sharedInstance.fullDownloaderCache;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
-    self.edgesForExtendedLayout = UIRectEdgeNone;
-	// Do any additional setup after loading the view, typically from a nib.
+
+    // Do any additional setup after loading the view, typically from a nib.
     { //notification add observers
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFinishDownloading:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFail:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
     }
-    {//hide navigation bar
-     // self.navigationController.navigationBarHidden = YES;
-    }
-    { //create page view controller
-        self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
-        self.pageViewController.dataSource = self;
-        
-        CVContentViewController *startingViewController = [self viewControllerAtIndexpath:self.indexpath];
-        [self.pageViewController setViewControllers:@[startingViewController]
-                                          direction:UIPageViewControllerNavigationDirectionForward
-                                           animated:NO completion:nil];
-        
-        
-        
-        //Change the size of the page view controller
-        //self.pageViewController.view.frame = CGRectMake(0, 20, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame)-20);
-        [self addChildViewController:_pageViewController];
-        [self.view addSubview:_pageViewController.view];
-        [self.pageViewController didMoveToParentViewController:self];
-    }
-    
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
      [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    {//make the view's origin start at behind the navigationbar rather than under it
+        self.edgesForExtendedLayout = UIRectEdgeAll;
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
+    [self goToSelectedIndexPath:self];
 }
 
 - (void)didReceiveMemoryWarning
@@ -84,99 +66,238 @@
 - (void)fullImageDidFinishDownloading:(NSNotification *)notification {
     CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
-    CVContentViewController *contentViewController = [self.contentViewCache objectForKey:indexpath];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        contentViewController.comicImageView.image = comicRecord.fullImage;
-    });
+    UIImage *fullImage = notification.userInfo[@"fullImage"];
     
-    [self.pendingOperations.fullDownloadersInProgress removeObjectForKey:indexpath];
+    comicRecord.failedFull = NO;
+    
+    [self.contentViewCache setObject:fullImage forKey:indexpath];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
+        if (cell) {
+            [cell.loaderGear stopAnimating];
+            [cell setComicFullImage:fullImage];
+            [self.tableView reloadData];
+            //[self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
+        }
+    });
+    [CVPendingOperations.sharedInstance.fullDownloadersInProgress removeObjectForKey:indexpath];
 }
 
 - (void)fullImageDidFail:(NSNotification *)notification {
-    [[[UIAlertView alloc] initWithTitle:@"oops" message:@"try again later" delegate:nil cancelButtonTitle:nil otherButtonTitles:nil] show];
+    CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
+    NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
+    //UIImage *fullImage = notification.userInfo[@"fullImage"];
+    comicRecord.failedFull = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
+        if (cell) {
+            cell.text.text = @"Tap to Reload";
+            [cell.loaderGear stopAnimating];
+            [cell setComicFullImage:nil];
+        }
+    });
 }
 
-#pragma mark - UIPageViewControllerDataSource Protocol
+#pragma mark - UITableView Protocol
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(CVContentViewController *)contentViewController {
-    NSUInteger index = contentViewController.pageIndex;
-    if (index == NSNotFound) {
-        return nil;
-    }
-    index++;
-    return [self viewControllerAtIndexpath:[NSIndexPath indexPathForRow:index inSection:0]];
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.comicRecords.count;
 }
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(CVContentViewController *)contentViewController {
-    NSUInteger index = contentViewController.pageIndex;
-    if ((index == 0) || (index == NSNotFound)) {
-        return nil;
-    }
-    index--;
-    return [self viewControllerAtIndexpath:[NSIndexPath indexPathForRow:index inSection:0]];
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 1000;
 }
 
-- (CVContentViewController *)viewControllerAtIndexpath:(NSIndexPath *)index {
-    if (([self.comicRecords count] == 0) || (index.row >= [self.comicRecords count])) {
-        return nil;
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CGSize prototypeSize = CGSizeMake(677, 1000);
+    float scale = self.view.frame.size.width / prototypeSize.width;
+    return prototypeSize.height*scale;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CVFullImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
+    [cell.loaderGear stopAnimating];
+    [cell.text setText:[self.comicRecords[indexPath.row] title]];
+    
+    //Check if image is in the cache
+    UIImage *fullImage = [self.contentViewCache objectForKey:indexPath];
+    [cell setComicFullImage:fullImage];
+    [self requestImageAroundIndexpath:indexPath];
+    
+    if (fullImage) {
+        return cell;
     }
     
-    CVContentViewController *contentViewController;
-    if ((contentViewController = [self.contentViewCache objectForKey:index])) {
-        return contentViewController;
-    }
     
-    //Create a new view controller and pass suitable data
-    contentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageContentViewController"];
-    //contentViewController.imageFile = self.pageImages[index];
+    [cell.loaderGear startAnimating];
     
-    //add this instance of the contentViewController to the cache so you can reference it later.
-    [self.contentViewCache setObject:contentViewController forKey:index];
+    [self requestImageForIndexPath:indexPath];
+    [self requestImageAroundIndexpath:indexPath];
     
-    contentViewController.pageIndex = index.row;
-    
-    CVComicRecord *comicRecord = self.comicRecords[index.row];
-    if (comicRecord.fullImage) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            contentViewController.comicImageView.image = comicRecord.fullImage;
-        });
-    } else {
-        CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:index];
-        self.pendingOperations.fullDownloadersInProgress[index] = downloader;
-        [self.pendingOperations.fullDownloaderOperationQueue addOperation:downloader];
-    }
-    return contentViewController;
+    return cell;
 }
 
-
-#pragma mark - touches
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (touches.count == 1) {
-        wasTapped = YES;
+/**
+ calls requestImageForIndexPath: for indexpaths that is one row up and one row down from the given indexpath but only if the row is within bounds of the comicRecords array.
+ */
+- (void)requestImageAroundIndexpath:(NSIndexPath *)indexPath {
+    NSInteger limit = self.contentViewCache.countLimit/2;
+    //try to load front and back
+    NSInteger back = indexPath.row + 1;
+    for (; back < indexPath.row + limit; back++) {
+        if (back >= 0 && back < self.comicRecords.count) {
+            [self requestImageForIndexPath:[NSIndexPath indexPathForRow:back inSection:0]];
+        }
+    }
+    
+    NSInteger front = indexPath.row -1;
+    for (;front > indexPath.row - limit; front--) {
+        if (front >= 0 && front < self.comicRecords.count) {
+            [self requestImageForIndexPath:[NSIndexPath indexPathForRow:front inSection:0]];
+        }
     }
 }
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+/**
+ loads the operation that will download the image for the given indexpath
+ */
+- (void)requestImageForIndexPath:(NSIndexPath *)indexPath {
+    if ([self.contentViewCache objectForKey:indexPath]) {
+        //if it is already cached, I do not need to make a request.
+        return;
+    }
+    if (CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath]) {
+        //if it is in the queue you do no need to make a request
+        return;
+    }
     
-    wasTapped = NO;
-    self.navigationController.navigationBarHidden = YES;
-    
+    CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
+    comicRecord.failedFull = NO;
+    CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
+    CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath] = downloader;
+    [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue addOperation:downloader];
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (wasTapped) {
-        wasTapped = NO;
-        self.navigationController.navigationBarHidden = NO;
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
+    if (comicRecord.failedFull) {
+        [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        //[self requestImageForIndexPath:indexPath];
     }
 }
 
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (wasTapped) {
-        wasTapped = NO;
-        self.navigationController.navigationBarHidden = YES;
+- (void)hideNavigationbar:(BOOL)b animationDuration:(NSTimeInterval)animationDuration {
+    __block BOOL isAnimating = NO;
+    if (isAnimating) {
+        return;
+    }
+   
+    isAnimating = YES;
+    if (self.navigationController.navigationBar.alpha != b) {
+        return;
+    }
+    [UIView animateWithDuration:animationDuration animations:^{
+        [self.navigationController.navigationBar setAlpha:!b];
+    } completion:^(BOOL finished) {
+        isAnimating = NO;
+    }];
+}
+
+#pragma mark - Scroll
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    static int oldOffset = 0;
+    int newOffset = scrollView.contentOffset.y;
+    
+    int dy = newOffset- oldOffset;
+    if (dy > 0) {
+        [self hideNavigationbar:YES animationDuration:0.5];
+    } else  if (dy < 0) {
+        [self hideNavigationbar:NO animationDuration:0.5];
+    }
+    
+    oldOffset = newOffset;
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (decelerate == NO) {
+        [self prioritizeVisisbleCells];
+        [self setCurrentPage:[self currentlyViewedComicIndexPath].row];
     }
 }
 
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self prioritizeVisisbleCells];
+    [self setCurrentPage:[self currentlyViewedComicIndexPath].row];
+}
 
+- (void)prioritizeVisisbleCells {
+     NSArray *ips = [self.tableView indexPathsForVisibleRows];
+    [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:YES];
+    NSArray *activeIndexPaths = [CVPendingOperations.sharedInstance.fullDownloadersInProgress allKeys];
+    //add visible cells to queue first
+    NSSet *visible = [NSSet setWithArray:ips];
+    NSMutableSet *invisible = [NSMutableSet setWithArray:activeIndexPaths];
+    [invisible minusSet:visible];
+    
+    for (NSIndexPath *ip in invisible) {
+        NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
+        [op setQueuePriority:NSOperationQueuePriorityNormal];
+    }
+    
+    for (NSIndexPath *ip in visible) {
+        NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
+        [op setQueuePriority:NSOperationQueuePriorityHigh];
+    }
+    [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:NO];
+}
+
+#pragma mark - reload after tableview loads 
+
+
+- (void)goToSelectedIndexPath:(id)sender {
+    NSIndexPath *indexPath = self.indexpath;
+    
+    [self.tableView scrollToRowAtIndexPath:indexPath
+                          atScrollPosition:UITableViewScrollPositionTop
+                                  animated:NO];
+    [self.tableView scrollToRowAtIndexPath:indexPath
+                          atScrollPosition:UITableViewScrollPositionTop
+                                  animated:NO];
+    [self.tableView reloadData];
+    [self hideNavigationbar:NO animationDuration:0.2];
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    self.indexpath = [self currentlyViewedComicIndexPath];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+    [self goToSelectedIndexPath:self];
+    [self setCurrentPage:self.indexpath.row];
+}
+
+- (NSIndexPath *)currentlyViewedComicIndexPath {
+    NSIndexPath *chosenIndexpath;
+    NSArray *visibleIndexPaths = [self.tableView indexPathsForVisibleRows];
+    chosenIndexpath = visibleIndexPaths.firstObject;
+    float center_y = self.tableView.contentOffset.y + self.tableView.frame.size.height/2;
+    
+    for (NSIndexPath *ip in visibleIndexPaths) {
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:ip];
+        if (cell) {
+            int top = CGRectGetMinY(cell.frame);
+            int bot = CGRectGetMaxY(cell.frame);
+            if (top <= center_y && center_y <= bot) {
+                chosenIndexpath = ip;
+                break;
+            }
+        }
+    }
+    return chosenIndexpath;
+}
+
+- (void)setCurrentPage:(NSInteger)page {
+    [[NSUserDefaults standardUserDefaults] setObject:@(page) forKey:@"lastPageSeen"];
+}
 @end

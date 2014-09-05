@@ -15,19 +15,15 @@
 
 @interface CVKickGirlTableViewController ()
 
-@property (strong, nonatomic) CVPendingOperations *pendingOperations;
 @property (strong, nonatomic) NSArray *comicRecords;
+@property (weak, nonatomic) NSCache *thumbnailImageCache;
 
 @end
 
 @implementation CVKickGirlTableViewController
 
-- (NSArray *)comicRecords {
-    if (_comicRecords) {
-        return _comicRecords;
-    }
-    _comicRecords = [NSArray new];
-    return _comicRecords;
+- (NSCache *)thumbnailImageCache {
+    return CVPendingOperations.sharedInstance.thumbnailDownloaderCache;
 }
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -42,13 +38,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    
     { //add notifications
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(archiveDidFinishDownloading:) name:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(archiveDidFail:) name:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOAD_FAILED_NOTIFICATION object:nil];
@@ -57,13 +46,52 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(thumbnailDidFail:) name:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION object:nil];
     }
     
-    self.pendingOperations = [CVPendingOperations new];
-    CVArchiveXMLDownloader *downloader = [[CVArchiveXMLDownloader alloc] init];
-    //NSIndexPath *ip = [NSIndexPath indexPathForRow:0 inSection:0];
-    //self.pendingOperations.archiveXMLDownloadersInProgress[ip] = downloader;
-    [self.pendingOperations.archiveXMLDownloaderOperationQueue addOperation:downloader];
+    [self reloadArchive:self];
     
-   }
+    {//setup navigation bar
+        UIBarButtonItem *reload = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadArchive:)];
+        [self.navigationItem setRightBarButtonItem:reload];
+        
+        [self.navigationItem setTitle:@"Kick Girl"];
+        
+        UIBarButtonItem *source = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(goToKickGirlWebsite:)];
+        [self.navigationItem setLeftBarButtonItem:source];
+    }
+}
+
+- (IBAction)goToKickGirlWebsite:(id)sender {
+    NSURL *url = [NSURL URLWithString:@"http://www.kick-girl.com"];
+    [[UIApplication sharedApplication] openURL:url];
+}
+
+- (IBAction)reloadArchive:(id)sender {
+    CVArchiveXMLDownloader *downloader = [[CVArchiveXMLDownloader alloc] init];
+    [CVPendingOperations.sharedInstance.archiveXMLDownloaderOperationQueue addOperation:downloader];
+
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    self.navigationController.navigationBar.alpha = 1;
+    {//make the view's origin start at behind the navigationbar rather than under it
+        self.edgesForExtendedLayout = UIRectEdgeNone;
+        self.automaticallyAdjustsScrollViewInsets = YES;
+    }
+    if (self.comicRecords) {
+        [self.tableView reloadData];
+        NSNumber *row = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPageSeen"];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row.integerValue
+                                                    inSection:0];
+        if (row.integerValue < 0 || row.integerValue >= self.comicRecords.count) {
+            indexPath = [NSIndexPath indexPathForRow:0
+                                           inSection:0];
+        }
+        [self.tableView scrollToRowAtIndexPath:indexPath
+                              atScrollPosition:UITableViewScrollPositionTop
+                                      animated:NO];
+        [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionTop];
+    }
+}
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION object:nil];
@@ -80,27 +108,16 @@
 }
 
 #pragma mark - Table view data source
-/*
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    // Return the number of sections.
-    return 1;
-}
-*/
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    // Return the number of rows in the section.
-    return self.comicRecords.count;
+ return self.comicRecords.count;
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
-    
-    // Configure the cell...
-    
     return cell;
 }
 
@@ -111,51 +128,21 @@
     cell.detailTextLabel.text = comicRecord.date;
     
     //if thumb nail results in nil then start downloader for it.
-    if ((cell.imageView.image = comicRecord.thumbnailImage) == nil) {
+
+    if ((cell.imageView.image = [self.thumbnailImageCache objectForKey:indexPath]) == nil) {
+        if ([tableView isDragging] || [tableView isDecelerating]) {
+            //don't load images if scrolling
+            return;
+        }
+        if ([CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[indexPath]) {
+            //It is already on the queue.
+            return;
+        }
         CVThumbnailImageDownloader *downloader = [[CVThumbnailImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
-        self.pendingOperations.thumbnailDownloadersInProgress[indexPath] = downloader;
-        [self.pendingOperations.thumbnailDownloaderOperationQueue addOperation:downloader];
+        CVPendingOperations.sharedInstance.thumbnailDownloadersInProgress[indexPath] = downloader;
+        [CVPendingOperations.sharedInstance.thumbnailDownloaderOperationQueue addOperation:downloader];
     }
 }
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
 
 #pragma mark - Navigation
 
@@ -168,49 +155,80 @@
     NSIndexPath *ip = [self.tableView indexPathForSelectedRow];
     cvc.comicRecords = self.comicRecords;
     cvc.indexpath = ip;
-    cvc.pendingOperations = self.pendingOperations;
 }
-
-
 
 #pragma mark - notifications
 
 - (void)archiveDidFinishDownloading:(NSNotification *)notification {
-    NSMutableArray *reverseArray = [NSMutableArray new];
-    NSArray *comicRecords = [NSMutableArray arrayWithArray:notification.userInfo[@"comicRecords"]];
-    for (id element in [comicRecords reverseObjectEnumerator]) {
-        [reverseArray addObject:element];
-    }
-    self.comicRecords = reverseArray;
+    self.comicRecords = notification.userInfo[@"comicRecords"];
     
-    //[self.pendingOperations.archiveXMLDownloadersInProgress removeObjectForKey:notification.userInfo[@"indexPath"]];
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.tableView reloadData];
+        NSNumber *row = [[NSUserDefaults standardUserDefaults] objectForKey:@"lastPageSeen"];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row.integerValue
+                                                    inSection:0];
+        if (row.integerValue < 0 || row.integerValue >= self.comicRecords.count) {
+            indexPath = [NSIndexPath indexPathForRow:0
+                                           inSection:0];
+        }
+        [self.tableView scrollToRowAtIndexPath:indexPath
+                    atScrollPosition:UITableViewScrollPositionTop
+                            animated:NO];
+        [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionTop];
     });
 }
 
 - (void)archiveDidFail:(NSNotification *)notification {
-#warning implement error later
+    [[[UIAlertView alloc] initWithTitle:@"No Internet Connection" message:@"Unable to load images at this time.  Try again later" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
 }
 
 - (void)thumbnailDidFinishDownloading:(NSNotification *)notification {
     NSDictionary *userinfo = notification.userInfo;
     NSIndexPath *indexpath = userinfo[@"indexPath"];
-    CVComicRecord *comicRecord = userinfo[@"comicRecord"];
+    //CVComicRecord *comicRecord = userinfo[@"comicRecord"];
+    UIImage *thumbnailImage = userinfo[@"thumbnailImage"];
     
-    [self.pendingOperations.thumbnailDownloadersInProgress removeObjectForKey:indexpath];
+    [self.thumbnailImageCache setObject:thumbnailImage forKey:indexpath];
+    [CVPendingOperations.sharedInstance.thumbnailDownloadersInProgress removeObjectForKey:indexpath];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
-            cell.imageView.image = comicRecord.thumbnailImage;
-            [self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            cell.imageView.image = thumbnailImage;
+            BOOL wasSelected = NO;
+            if (cell.isSelected) {
+                wasSelected = YES;
+            }
+            [self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
+            if (wasSelected) {
+                [self.tableView selectRowAtIndexPath:indexpath animated:NO scrollPosition:UITableViewScrollPositionNone];
+            }
         }
     });
 }
 
 - (void)thumbnailDidFail:(NSNotification *)notification {
-#warning implement error later
+    NSDictionary *userinfo = notification.userInfo;
+    //NSIndexPath *indexpath = userinfo[@"indexPath"];
+    CVComicRecord *comicRecord = userinfo[@"comicRecord"];
+    comicRecord.failedThumb = YES;
+}
+
+#pragma mark - UIScrollView Delegate
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (decelerate == NO) {
+        [self loadImagesForOnscreenCells];
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self loadImagesForOnscreenCells];
+}
+
+- (void)loadImagesForOnscreenCells {
+    NSArray *ips = [self.tableView indexPathsForVisibleRows];
+    [self.tableView reloadRowsAtIndexPaths:ips withRowAnimation:UITableViewRowAnimationNone];
 }
 
 @end
