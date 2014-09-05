@@ -58,7 +58,7 @@
 		7FA3B4E419B56C81008C645F /* kickgirl.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = kickgirl.jpg; sourceTree = "<group>"; };
 		7FA3B4E519B56C81008C645F /* icon58.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon58.png; sourceTree = "<group>"; };
 		7FA3B4E619B56C81008C645F /* icon29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon29.png; sourceTree = "<group>"; };
-		7FC54B3019B27B36000D1EDD /* ComicViewerKickGirl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ComicViewerKickGirl.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7FC54B3019B27B36000D1EDD /* Kick Girl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kick Girl.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7FC54B3319B27B36000D1EDD /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		7FC54B3519B27B36000D1EDD /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		7FC54B3719B27B36000D1EDD /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -148,7 +148,7 @@
 		7FC54B3119B27B36000D1EDD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7FC54B3019B27B36000D1EDD /* ComicViewerKickGirl.app */,
+				7FC54B3019B27B36000D1EDD /* Kick Girl.app */,
 				7FC54B5419B27B36000D1EDD /* ComicViewerKickGirlTests.xctest */,
 			);
 			name = Products;
@@ -248,7 +248,7 @@
 			);
 			name = "Kick Girl";
 			productName = ComicViewerKickGirl;
-			productReference = 7FC54B3019B27B36000D1EDD /* ComicViewerKickGirl.app */;
+			productReference = 7FC54B3019B27B36000D1EDD /* Kick Girl.app */;
 			productType = "com.apple.product-type.application";
 		};
 		7FC54B5319B27B36000D1EDD /* ComicViewerKickGirlTests */ = {
