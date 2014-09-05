@@ -38,23 +38,26 @@ static NSString *const kFullImage = @"fullImage";
 
 - (void)main {
     @autoreleasepool {
-        NSError *err;
-        NSString *text = [NSString stringWithContentsOfURL:self.comicRecord.fullImagePageURL encoding:NSUTF8StringEncoding error:&err];
-        if (self.isCancelled || err) {
-            [self failedOperation];
-            return;
+        if (self.comicRecord.fullImageURL == nil){
+            NSError *err;
+            NSString *text = [NSString stringWithContentsOfURL:self.comicRecord.fullImagePageURL
+                                                      encoding:NSUTF8StringEncoding error:&err];
+            if (self.isCancelled || err) {
+                [self failedOperation];
+                return;
+            }
+            text = [self cleanText:text];
+            
+            NSData *textData = [text dataUsingEncoding:NSUTF8StringEncoding];
+            NSXMLParser *xmlparser = [[NSXMLParser alloc] initWithData:textData];
+            xmlparser.delegate = self;
+            
+            if (self.isCancelled || ([xmlparser parse] == NO)) {
+                [self failedOperation];
+                return;
+            }
         }
-        text = [self cleanText:text];
-        
-        NSData *textData = [text dataUsingEncoding:NSUTF8StringEncoding];
-        NSXMLParser *xmlparser = [[NSXMLParser alloc] initWithData:textData];
-        xmlparser.delegate = self;
-        [xmlparser parse];
-        if (self.isCancelled) {
-            [self failedOperation];
-            return;
-        }
-        
+    
         //download full images
         NSData *imgData = [NSData dataWithContentsOfURL:self.comicRecord.fullImageURL];
         if (self.isCancelled) {
