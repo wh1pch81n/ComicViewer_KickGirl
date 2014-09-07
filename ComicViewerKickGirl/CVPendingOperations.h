@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RKReachabilityObserver.h"
 
 @interface CVPendingOperations : NSObject
 
@@ -21,6 +22,7 @@
 @property (nonatomic, strong) NSOperationQueue *fullDownloaderOperationQueue;
 @property (nonatomic, strong) NSCache *fullDownloaderCache;
 
+@property (nonatomic, strong) RKReachabilityObserver *reachabilityObserver;
 
 +(CVPendingOperations *)sharedInstance;
 

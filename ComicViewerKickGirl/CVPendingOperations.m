@@ -19,6 +19,17 @@
     return _instance;
 }
 
+- (id)init {
+    if (self = [super init]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:RKReachabilityDidChangeNotification object:nil];
+    }
+    return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:RKReachabilityDidChangeNotification object:nil];
+}
+
 #pragma mark - ARchive
 - (NSMutableDictionary *)archiveXMLDownloadersInProgress {
     return _archiveXMLDownloadersInProgress?:(_archiveXMLDownloadersInProgress = [NSMutableDictionary new]);
@@ -79,6 +90,44 @@
         _fullDownloaderOperationQueue.maxConcurrentOperationCount = 2; //debugging to make it slower
     }
     return _fullDownloaderOperationQueue;
+}
+
+#pragma mark - RKReachability observer
+
+- (RKReachabilityObserver *)reachabilityObserver{
+    if (_reachabilityObserver) {
+        return _reachabilityObserver;
+    }
+    _reachabilityObserver = [RKReachabilityObserver reachabilityObserverForInternet];
+    return _reachabilityObserver;
+}
+
+- (void)reachabilityChanged:(NSNotification *)notification {
+    BOOL online = self.reachabilityObserver.isNetworkReachable;
+    
+    if (online) {
+//        [self.archiveXMLDownloaderOperationQueue
+//         setSuspended:NO];
+//        [self.thumbnailDownloaderOperationQueue
+//         setSuspended:NO];
+//        [self.fullDownloaderOperationQueue
+//         setSuspended:NO];
+    } else {
+//        [self.archiveXMLDownloaderOperationQueue
+//         setSuspended:YES];
+//        [self.thumbnailDownloaderOperationQueue
+//         setSuspended:YES];
+//        [self.fullDownloaderOperationQueue
+//         setSuspended:YES];]
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[[UIAlertView alloc] initWithTitle:@"No Internet Connection"
+                                        message:@"This Application Requires an Internet connection."
+                                       delegate:nil
+                              cancelButtonTitle:@"OK"
+                              otherButtonTitles:nil]
+             show];
+        });
+    }
 }
 
 @end

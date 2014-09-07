@@ -13,6 +13,7 @@
 #import "CVThumbnailImageDownloader.h"
 #import "CVComicRecord.h"
 #import "CVFullImageTableViewCell.h"
+#import "CVPendingOperations.h"
 
 @interface CVViewController ()
 
@@ -37,12 +38,14 @@
     { //notification add observers
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFinishDownloading:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fullImageDidFail:) name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(internetListener:) name:RKReachabilityDidChangeNotification object:nil];
     }
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION object:nil];
      [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:RKReachabilityDidChangeNotification object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -62,6 +65,11 @@
 
 #pragma mark - notifications
 
+- (void)internetListener:(NSNotification *)notification {
+    if (CVPendingOperations.sharedInstance.reachabilityObserver.isNetworkReachable) {
+        [self.tableView reloadData];
+    }
+}
 
 - (void)fullImageDidFinishDownloading:(NSNotification *)notification {
     CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
@@ -88,6 +96,8 @@
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
     //UIImage *fullImage = notification.userInfo[@"fullImage"];
     comicRecord.failedFull = YES;
+    [CVPendingOperations.sharedInstance
+     .fullDownloadersInProgress removeObjectForKey:indexpath];
     dispatch_async(dispatch_get_main_queue(), ^{
         CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
@@ -233,7 +243,7 @@
 
 - (void)prioritizeVisisbleCells {
      NSArray *ips = [self.tableView indexPathsForVisibleRows];
-    [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:YES];
+    //[CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:YES];
     NSArray *activeIndexPaths = [CVPendingOperations.sharedInstance.fullDownloadersInProgress allKeys];
     //add visible cells to queue first
     NSSet *visible = [NSSet setWithArray:ips];
@@ -249,7 +259,7 @@
         NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
         [op setQueuePriority:NSOperationQueuePriorityHigh];
     }
-    [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:NO];
+    //[CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:NO];
 }
 
 #pragma mark - reload after tableview loads 

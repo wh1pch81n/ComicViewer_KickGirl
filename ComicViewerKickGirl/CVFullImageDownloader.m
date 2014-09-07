@@ -8,6 +8,7 @@
 
 #import "CVFullImageDownloader.h"
 #import "CVComicRecord.h"
+#import "CVPendingOperations.h"
 
 #pragma mark - notification constants
 NSString *const kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION = @"kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_NOTIFICATION";
@@ -38,6 +39,10 @@ static NSString *const kFullImage = @"fullImage";
 
 - (void)main {
     @autoreleasepool {
+        if ([CVPendingOperations sharedInstance].reachabilityObserver.isNetworkReachable == NO) {
+            [self failedOperation];
+            return;
+        }
         if (self.comicRecord.fullImageURL == nil){
             NSError *err;
             NSString *text = [NSString stringWithContentsOfURL:self.comicRecord.fullImagePageURL
@@ -57,7 +62,10 @@ static NSString *const kFullImage = @"fullImage";
                 return;
             }
         }
-    
+        if ([CVPendingOperations sharedInstance].reachabilityObserver.isNetworkReachable == NO) {
+            [self failedOperation];
+            return;
+        }
         //download full images
         NSData *imgData = [NSData dataWithContentsOfURL:self.comicRecord.fullImageURL];
         if (self.isCancelled) {
@@ -76,13 +84,12 @@ static NSString *const kFullImage = @"fullImage";
 }
 
 - (void)failedOperation {
+    NSMutableDictionary *d = [NSMutableDictionary new];
+    [d setValue:self.comicRecord forKey:kComicRecord];
+    [d setValue:self.indexPath forKey:kIndexPath];
     [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION
                                                         object:self
-                                                      userInfo:@{
-                                                                 kComicRecord: self.comicRecord,
-                                                                 kIndexPath: self.indexPath,
-                                                                 kFullImage: self.fullImage
-                                                                 }];
+                                                      userInfo:d];
 }
 
 
