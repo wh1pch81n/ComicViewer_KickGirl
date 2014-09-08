@@ -36,6 +36,8 @@
 		7FC54B7A19B28D10000D1EDD /* CVPendingOperations.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7919B28D10000D1EDD /* CVPendingOperations.m */; };
 		7FC54B7D19B2B12E000D1EDD /* CVKickGirlTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FC54B7C19B2B12E000D1EDD /* CVKickGirlTableViewController.m */; };
 		7FC54B8219B3F5E4000D1EDD /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FC54B8119B3F5E4000D1EDD /* iAd.framework */; };
+		7FEC739919BC3D6000F10CF8 /* RKReachabilityObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FEC739819BC3D6000F10CF8 /* RKReachabilityObserver.m */; };
+		7FEC739B19BC457C00F10CF8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FEC739A19BC457C00F10CF8 /* SystemConfiguration.framework */; };
 		7FF437D619B788D000854F57 /* CVFullImageTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FF437D519B788D000854F57 /* CVFullImageTableViewCell.m */; };
 /* End PBXBuildFile section */
 
@@ -90,6 +92,9 @@
 		7FC54B7B19B2B12E000D1EDD /* CVKickGirlTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVKickGirlTableViewController.h; sourceTree = "<group>"; };
 		7FC54B7C19B2B12E000D1EDD /* CVKickGirlTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVKickGirlTableViewController.m; sourceTree = "<group>"; };
 		7FC54B8119B3F5E4000D1EDD /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		7FEC739719BC3D6000F10CF8 /* RKReachabilityObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKReachabilityObserver.h; sourceTree = "<group>"; };
+		7FEC739819BC3D6000F10CF8 /* RKReachabilityObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RKReachabilityObserver.m; sourceTree = "<group>"; };
+		7FEC739A19BC457C00F10CF8 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		7FF437D419B788D000854F57 /* CVFullImageTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFullImageTableViewCell.h; sourceTree = "<group>"; };
 		7FF437D519B788D000854F57 /* CVFullImageTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVFullImageTableViewCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -99,6 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7FEC739B19BC457C00F10CF8 /* SystemConfiguration.framework in Frameworks */,
 				7FC54B8219B3F5E4000D1EDD /* iAd.framework in Frameworks */,
 				7FC54B3619B27B36000D1EDD /* CoreGraphics.framework in Frameworks */,
 				7FC54B3819B27B36000D1EDD /* UIKit.framework in Frameworks */,
@@ -137,6 +143,7 @@
 		7FC54B2719B27B36000D1EDD = {
 			isa = PBXGroup;
 			children = (
+				7FEC739619BC3D3800F10CF8 /* RKReachabilityObserver */,
 				7FA3B4DE19B56C70008C645F /* iconImages */,
 				7FC54B3919B27B36000D1EDD /* ComicViewerKickGirl */,
 				7FC54B5B19B27B36000D1EDD /* ComicViewerKickGirlTests */,
@@ -157,6 +164,7 @@
 		7FC54B3219B27B36000D1EDD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7FEC739A19BC457C00F10CF8 /* SystemConfiguration.framework */,
 				7FC54B8119B3F5E4000D1EDD /* iAd.framework */,
 				7FC54B3319B27B36000D1EDD /* Foundation.framework */,
 				7FC54B3519B27B36000D1EDD /* CoreGraphics.framework */,
@@ -229,6 +237,15 @@
 				7FC54B7319B27CA9000D1EDD /* CVFullImageDownloader.m */,
 			);
 			name = NSOperation;
+			sourceTree = "<group>";
+		};
+		7FEC739619BC3D3800F10CF8 /* RKReachabilityObserver */ = {
+			isa = PBXGroup;
+			children = (
+				7FEC739719BC3D6000F10CF8 /* RKReachabilityObserver.h */,
+				7FEC739819BC3D6000F10CF8 /* RKReachabilityObserver.m */,
+			);
+			name = RKReachabilityObserver;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -347,6 +364,7 @@
 				7FC54B4D19B27B36000D1EDD /* CVViewController.m in Sources */,
 				7FC54B7D19B2B12E000D1EDD /* CVKickGirlTableViewController.m in Sources */,
 				7FC54B7719B28A31000D1EDD /* CVComicRecord.m in Sources */,
+				7FEC739919BC3D6000F10CF8 /* RKReachabilityObserver.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

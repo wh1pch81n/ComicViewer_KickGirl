@@ -8,6 +8,7 @@
 
 #import "CVThumbnailImageDownloader.h"
 #import "CVComicRecord.h"
+#import "CVPendingOperations.h"
 
 #pragma mark - notification constants
 NSString *const kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION = @"kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION";
@@ -38,6 +39,10 @@ static NSString *const kThumbnailImage = @"thumbnailImage";
 
 - (void)main {
     @autoreleasepool {
+        if ([CVPendingOperations sharedInstance].reachabilityObserver.isNetworkReachable == NO) {
+            [self failedOperation];
+            return;
+        }
         NSData *imgData = [NSData dataWithContentsOfURL:self.comicRecord.thumbnailImageURL];
         if (self.isCancelled || (imgData == nil)) {
             [self failedOperation];
@@ -56,10 +61,10 @@ static NSString *const kThumbnailImage = @"thumbnailImage";
 }
 
 - (void)failedOperation {
-    NSDictionary *d = @{kComicRecord:self.comicRecord,
-                        kIndexPath:self.indexpath,
-                        kThumbnailImage:self.thumbImage
-                        };
+    NSMutableDictionary *d = [NSMutableDictionary new];
+    [d setValue:self.comicRecord forKey:kComicRecord];
+    [d setValue:self.indexpath forKey:kIndexPath];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION object:self userInfo:d];
 }
 

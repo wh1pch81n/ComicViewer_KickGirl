@@ -12,6 +12,7 @@
 #import "CVThumbnailImageDownloader.h"
 #import "CVComicRecord.h"
 #import "CVViewController.h"
+#import "RKReachabilityObserver.h"
 
 @interface CVKickGirlTableViewController ()
 
@@ -44,6 +45,8 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(thumbnailDidFinishDownloading:) name:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(thumbnailDidFail:) name:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(internetListener:) name:RKReachabilityDidChangeNotification object:nil];
     }
     
     [self reloadArchive:self];
@@ -99,6 +102,8 @@
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:RKReachabilityDidChangeNotification object:nil];
 }
 
 - (void)didReceiveMemoryWarning
@@ -159,6 +164,15 @@
 
 #pragma mark - notifications
 
+- (void)internetListener:(NSNotification *)notification {
+    if (CVPendingOperations.sharedInstance.reachabilityObserver.isNetworkReachable) {
+        if (self.comicRecords == nil) { //archive failed to load at least once
+            [self reloadArchive:notification];
+        }
+        [self.tableView reloadData];
+    }
+}
+
 - (void)archiveDidFinishDownloading:(NSNotification *)notification {
     self.comicRecords = notification.userInfo[@"comicRecords"];
     
@@ -179,7 +193,9 @@
 }
 
 - (void)archiveDidFail:(NSNotification *)notification {
-    [[[UIAlertView alloc] initWithTitle:@"No Internet Connection" message:@"Unable to load images at this time.  Try again later" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[[UIAlertView alloc] initWithTitle:@"No Internet Connection" message:@"Unable to load images at this time.  Try again later" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    });
 }
 
 - (void)thumbnailDidFinishDownloading:(NSNotification *)notification {
@@ -209,9 +225,10 @@
 
 - (void)thumbnailDidFail:(NSNotification *)notification {
     NSDictionary *userinfo = notification.userInfo;
-    //NSIndexPath *indexpath = userinfo[@"indexPath"];
+    NSIndexPath *indexpath = userinfo[@"indexPath"];
     CVComicRecord *comicRecord = userinfo[@"comicRecord"];
     comicRecord.failedThumb = YES;
+    [CVPendingOperations.sharedInstance.thumbnailDownloadersInProgress removeObjectForKey:indexpath];
 }
 
 #pragma mark - UIScrollView Delegate

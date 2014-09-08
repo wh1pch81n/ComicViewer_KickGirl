@@ -8,6 +8,7 @@
 
 #import "CVArchiveXMLDownloader.h"
 #import "CVComicRecord.h"
+#import "CVPendingOperations.h"
 
 NSString *const kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION = @"kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOADER_NOTIFICATION";
 NSString *const kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOAD_FAILED_NOTIFICATION = @"kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOAD_FAILED_NOTIFICATION";
@@ -32,6 +33,10 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
 
 - (void)main {
     @autoreleasepool {
+        if([[[CVPendingOperations sharedInstance] reachabilityObserver] isNetworkReachable] == NO) {
+            [self operationFailed];
+            return;
+        }
         //get xml from website
         NSError *err;
         NSString *text = [NSString stringWithContentsOfURL:self.urlOfArchive encoding:NSUTF8StringEncoding error:&err];
@@ -71,9 +76,10 @@ NSString *const kComicArrayObject = @"comicthumbwrap";
 }
 
 - (void)operationFailed {
+    NSMutableDictionary *dict = nil;
     [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_ARCHIVE_XML_DOWNLOAD_FAILED_NOTIFICATION
                                                         object:self
-                                                      userInfo:@{@"comicRecords":self.comicRecords}];
+                                                      userInfo:dict];
 }
 
 - (NSString *)cleanText:(NSString *)text {
