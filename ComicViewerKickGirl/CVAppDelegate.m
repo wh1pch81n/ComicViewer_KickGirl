@@ -14,6 +14,7 @@
 {
     // Override point for customization after application launch.
     [self registerUserDefaults];
+    
     return YES;
 }
 							
@@ -45,7 +46,10 @@
 }
 
 - (void)registerUserDefaults {
-    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"lastPageSeen":@(-1)}];
+    [[NSUserDefaults standardUserDefaults]
+     registerDefaults:@{@"lastPageSeen":@(-1),
+                        @"specialMessageDate":@"0.0.0"
+                        }];
 }
 
 @end

@@ -10,7 +10,7 @@
 #import <iAd/iAd.h>
 
 @class CVPendingOperations;
-@interface CVViewController : UITableViewController
+@interface CVViewController : UITableViewController <UIAlertViewDelegate>
 
 @property (strong, nonatomic) NSArray *comicRecords;
 @property (strong, nonatomic) NSIndexPath *indexpath;

@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface CVKickGirlTableViewController : UITableViewController
+@interface CVKickGirlTableViewController : UITableViewController <UIAlertViewDelegate>
 
 @end
