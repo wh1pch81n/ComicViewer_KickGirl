@@ -19,6 +19,8 @@
 @property (strong, nonatomic) NSArray *comicRecords;
 @property (weak, nonatomic) NSCache *thumbnailImageCache;
 
+@property (strong, nonatomic) NSURL *actionMessageURL;
+
 @end
 
 @implementation CVKickGirlTableViewController
@@ -60,6 +62,7 @@
         UIBarButtonItem *source = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(goToKickGirlWebsite:)];
         [self.navigationItem setLeftBarButtonItem:source];
     }
+    [self fetchSpecialMessage];
 }
 
 - (IBAction)goToKickGirlWebsite:(id)sender {
@@ -246,6 +249,73 @@
 - (void)loadImagesForOnscreenCells {
     NSArray *ips = [self.tableView indexPathsForVisibleRows];
     [self.tableView reloadRowsAtIndexPaths:ips withRowAnimation:UITableViewRowAnimationNone];
+}
+
+#pragma mark - Special message
+
+/**
+ fetches a special message asynchrounously and displays the message if it hasn't been seen yet
+ */
+- (void)fetchSpecialMessage {
+    static NSString *const urlString = @"https://raw.githubusercontent.com/wh1pch81n/ComicViewer_KickGirl/uialertview/specialmessage";
+   
+    NSOperationQueue *oq = [NSOperationQueue new];
+    [oq addOperationWithBlock:^{
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSData *data = [NSData dataWithContentsOfURL:url];
+        NSError *err;
+        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data
+                                                            options:kNilOptions
+                                                              error:&err];
+        NSLog(@"%@", dic);
+        if (err) {
+            return;
+        }
+        for (NSDictionary *d in dic[@"alerts"]) {
+            dic = d;
+            NSString *messageDate = dic[@"post_date"];
+            NSString *messageTitle = dic[@"title"];
+            NSString *messageMessage = dic[@"message"];
+            NSString *messageActionURL = dic[@"actionURL"];
+            self.actionMessageURL = [NSURL URLWithString:messageActionURL];
+            
+            //if todays date matches post date
+            NSDateFormatter *dateFormatter = NSDateFormatter.new;
+            dateFormatter.dateFormat = @"MM.dd.yyyy";
+            NSString *todaysDate = [dateFormatter stringFromDate:NSDate.new];
+            NSLog(@"%@.....%@", messageDate, todaysDate);
+            if ([messageDate isEqualToString:todaysDate] == NO) {
+                //if post date doesn't match then don't post message
+                continue;
+            }
+            
+            NSString *specialMessageDate = [[NSUserDefaults standardUserDefaults]
+                                            objectForKey:@"specialMessageDate"];
+            if ([specialMessageDate isEqualToString:messageDate] == NO) {
+                [NSUserDefaults.standardUserDefaults setObject:messageDate
+                                                        forKey:@"specialMessageDate"];
+                //show the thing
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    UIAlertView *alert =
+                    [[UIAlertView alloc] initWithTitle:messageTitle
+                                               message:messageMessage
+                                              delegate:self
+                                     cancelButtonTitle:@"cancel"
+                                     otherButtonTitles:@"OK", nil];
+                    [alert show];
+                });
+            }
+        }
+    }];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex == alertView.cancelButtonIndex) {
+        return;
+    }
+    if ([UIApplication.sharedApplication canOpenURL:self.actionMessageURL]) {
+        [UIApplication.sharedApplication openURL:self.actionMessageURL];
+    }
 }
 
 @end
