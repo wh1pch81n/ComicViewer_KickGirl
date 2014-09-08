@@ -242,8 +242,7 @@
 }
 
 - (void)prioritizeVisisbleCells {
-     NSArray *ips = [self.tableView indexPathsForVisibleRows];
-    //[CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:YES];
+    NSArray *ips = [self.tableView indexPathsForVisibleRows];
     NSArray *activeIndexPaths = [CVPendingOperations.sharedInstance.fullDownloadersInProgress allKeys];
     //add visible cells to queue first
     NSSet *visible = [NSSet setWithArray:ips];
@@ -259,7 +258,6 @@
         NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
         [op setQueuePriority:NSOperationQueuePriorityHigh];
     }
-    //[CVPendingOperations.sharedInstance.fullDownloaderOperationQueue setSuspended:NO];
 }
 
 #pragma mark - reload after tableview loads 
