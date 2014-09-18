@@ -76,4 +76,23 @@ static NSString *const kThumbnailImage = @"thumbnailImage";
     [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION object:self userInfo:d];
 }
 
+- (void)start {
+    [CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[self.indexpath] = self;
+    [self addObserver:self
+           forKeyPath:NSStringFromSelector(@selector(isFinished))
+              options:NSKeyValueObservingOptionNew
+              context:nil];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
+        [[CVPendingOperations sharedInstance].thumbnailDownloadersInProgress removeObjectForKey:self.indexpath];
+        [self removeObserver:self
+                  forKeyPath:keyPath
+                     context:nil];
+    }
+}
+
+
+
 @end

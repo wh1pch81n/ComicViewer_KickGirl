@@ -147,7 +147,6 @@
             return;
         }
         CVThumbnailImageDownloader *downloader = [[CVThumbnailImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
-        CVPendingOperations.sharedInstance.thumbnailDownloadersInProgress[indexPath] = downloader;
         [CVPendingOperations.sharedInstance.thumbnailDownloaderOperationQueue addOperation:downloader];
     }
 }
@@ -208,7 +207,6 @@
     UIImage *thumbnailImage = userinfo[@"thumbnailImage"];
     
     [self.thumbnailImageCache setObject:thumbnailImage forKey:indexpath];
-    [CVPendingOperations.sharedInstance.thumbnailDownloadersInProgress removeObjectForKey:indexpath];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
@@ -231,7 +229,6 @@
     NSIndexPath *indexpath = userinfo[@"indexPath"];
     CVComicRecord *comicRecord = userinfo[@"comicRecord"];
     comicRecord.failedThumb = YES;
-    [CVPendingOperations.sharedInstance.thumbnailDownloadersInProgress removeObjectForKey:indexpath];
 }
 
 #pragma mark - UIScrollView Delegate
