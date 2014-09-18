@@ -129,7 +129,8 @@
     //Check if image is in the cache
     UIImage *fullImage = [self.contentViewCache objectForKey:indexPath];
     [cell setComicFullImage:fullImage];
-    [self requestImageAroundIndexpath:indexPath];
+#warning i think there is somethign weird about this flow.
+    //[self requestImageAroundIndexpath:indexPath];
     
     if (fullImage) {
         return cell;
@@ -139,7 +140,7 @@
     [cell.loaderGear startAnimating];
     
     [self requestImageForIndexPath:indexPath];
-    [self requestImageAroundIndexpath:indexPath];
+    //[self requestImageAroundIndexpath:indexPath];
     
     return cell;
 }

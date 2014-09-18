@@ -145,6 +145,7 @@ static NSString *const kFullImage = @"fullImage";
            forKeyPath:NSStringFromSelector(@selector(isFinished))
               options:NSKeyValueObservingOptionNew
               context:nil];
+    [super start];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
