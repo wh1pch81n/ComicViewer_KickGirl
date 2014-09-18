@@ -277,7 +277,7 @@
     [self.tableView scrollToRowAtIndexPath:indexPath
                           atScrollPosition:UITableViewScrollPositionTop
                                   animated:NO];
-    [self.tableView reloadData];
+    [self.tableView reloadData];//Reloading data seems to help it scroll to the correct position
     [self hideNavigationbar:NO animationDuration:0.2];
 }
 
@@ -301,6 +301,7 @@
         if (cell) {
             int top = CGRectGetMinY(cell.frame);
             int bot = CGRectGetMaxY(cell.frame);
+            NSLog(@"%d ... %d ||  %f", top, bot, center_y);
             if (top <= center_y && center_y <= bot) {
                 chosenIndexpath = ip;
                 break;
