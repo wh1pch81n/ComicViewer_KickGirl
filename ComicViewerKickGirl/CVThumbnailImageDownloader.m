@@ -77,7 +77,9 @@ static NSString *const kThumbnailImage = @"thumbnailImage";
 }
 
 - (void)start {
+    [[CVPendingOperations sharedInstance].thumbnailQueueLock lock];
     [CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[self.indexpath] = self;
+    [[CVPendingOperations sharedInstance].thumbnailQueueLock unlock];
     [self addObserver:self
            forKeyPath:NSStringFromSelector(@selector(isFinished))
               options:NSKeyValueObservingOptionNew
@@ -87,7 +89,9 @@ static NSString *const kThumbnailImage = @"thumbnailImage";
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
+        [[[CVPendingOperations sharedInstance] thumbnailQueueLock] lock];
         [[CVPendingOperations sharedInstance].thumbnailDownloadersInProgress removeObjectForKey:self.indexpath];
+        [[[CVPendingOperations sharedInstance] thumbnailQueueLock] unlock];
         [self removeObserver:self
                   forKeyPath:keyPath
                      context:nil];

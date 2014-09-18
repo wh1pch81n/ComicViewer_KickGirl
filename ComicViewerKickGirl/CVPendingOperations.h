@@ -17,10 +17,12 @@
 @property (nonatomic, strong) NSMutableDictionary *thumbnailDownloadersInProgress;
 @property (nonatomic, strong) NSOperationQueue *thumbnailDownloaderOperationQueue;
 @property (nonatomic, strong) NSCache *thumbnailDownloaderCache;
+@property (nonatomic, strong) NSLock *thumbnailQueueLock;
 
 @property (nonatomic, strong) NSMutableDictionary *fullDownloadersInProgress;
 @property (nonatomic, strong) NSOperationQueue *fullDownloaderOperationQueue;
 @property (nonatomic, strong) NSCache *fullDownloaderCache;
+@property (nonatomic, strong) NSLock *fullQueueLock;
 
 @property (nonatomic, strong) RKReachabilityObserver *reachabilityObserver;
 

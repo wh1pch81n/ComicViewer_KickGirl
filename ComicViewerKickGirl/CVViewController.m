@@ -174,7 +174,10 @@
         //if it is already cached, I do not need to make a request.
         return;
     }
-    if (CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath]) {
+    [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
+    id fd = CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath];
+    [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
+    if (fd) {
         //if it is in the queue you do no need to make a request
         return;
     }
@@ -240,19 +243,25 @@
 
 - (void)prioritizeVisisbleCells {
     NSArray *ips = [self.tableView indexPathsForVisibleRows];
+    [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
     NSArray *activeIndexPaths = [CVPendingOperations.sharedInstance.fullDownloadersInProgress allKeys];
+    [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
     //add visible cells to queue first
     NSSet *visible = [NSSet setWithArray:ips];
     NSMutableSet *invisible = [NSMutableSet setWithArray:activeIndexPaths];
     [invisible minusSet:visible];
     
     for (NSIndexPath *ip in invisible) {
+        [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
         NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
+        [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
         [op setQueuePriority:NSOperationQueuePriorityNormal];
     }
     
     for (NSIndexPath *ip in visible) {
+        [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
         NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
+        [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
         [op setQueuePriority:NSOperationQueuePriorityHigh];
     }
 }

@@ -142,7 +142,10 @@
             //don't load images if scrolling
             return;
         }
-        if ([CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[indexPath]) {
+        [[[CVPendingOperations sharedInstance] thumbnailQueueLock] lock];
+        id td = [CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[indexPath];
+        [[[CVPendingOperations sharedInstance] thumbnailQueueLock] unlock];
+        if (td) {
             //It is already on the queue.
             return;
         }
