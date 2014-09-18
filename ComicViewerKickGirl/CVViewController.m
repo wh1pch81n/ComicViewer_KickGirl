@@ -88,7 +88,6 @@
             //[self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
         }
     });
-    [CVPendingOperations.sharedInstance.fullDownloadersInProgress removeObjectForKey:indexpath];
 }
 
 - (void)fullImageDidFail:(NSNotification *)notification {
@@ -96,8 +95,6 @@
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
     //UIImage *fullImage = notification.userInfo[@"fullImage"];
     comicRecord.failedFull = YES;
-    [CVPendingOperations.sharedInstance
-     .fullDownloadersInProgress removeObjectForKey:indexpath];
     dispatch_async(dispatch_get_main_queue(), ^{
         CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
@@ -184,7 +181,6 @@
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     comicRecord.failedFull = NO;
     CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
-    CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath] = downloader;
     [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue addOperation:downloader];
 }
 
