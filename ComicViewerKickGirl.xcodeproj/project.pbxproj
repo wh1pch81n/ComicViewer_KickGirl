@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7F8E596C19CABF8A00ACC5EC /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F8E596B19CABF8A00ACC5EC /* GameKit.framework */; };
+		7F8E596E19CABF9500ACC5EC /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F8E596D19CABF9500ACC5EC /* StoreKit.framework */; };
 		7FA3B4E719B56C81008C645F /* icon80.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4DF19B56C81008C645F /* icon80.png */; };
 		7FA3B4E819B56C81008C645F /* icon120.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4E019B56C81008C645F /* icon120.png */; };
 		7FA3B4E919B56C81008C645F /* icon152.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4E119B56C81008C645F /* icon152.png */; };
@@ -52,6 +54,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7F8E596B19CABF8A00ACC5EC /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
+		7F8E596D19CABF9500ACC5EC /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		7FA3B4DF19B56C81008C645F /* icon80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon80.png; sourceTree = "<group>"; };
 		7FA3B4E019B56C81008C645F /* icon120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon120.png; sourceTree = "<group>"; };
 		7FA3B4E119B56C81008C645F /* icon152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon152.png; sourceTree = "<group>"; };
@@ -105,8 +109,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				7FEC739B19BC457C00F10CF8 /* SystemConfiguration.framework in Frameworks */,
+				7F8E596E19CABF9500ACC5EC /* StoreKit.framework in Frameworks */,
 				7FC54B8219B3F5E4000D1EDD /* iAd.framework in Frameworks */,
 				7FC54B3619B27B36000D1EDD /* CoreGraphics.framework in Frameworks */,
+				7F8E596C19CABF8A00ACC5EC /* GameKit.framework in Frameworks */,
 				7FC54B3819B27B36000D1EDD /* UIKit.framework in Frameworks */,
 				7FC54B3419B27B36000D1EDD /* Foundation.framework in Frameworks */,
 			);
@@ -164,6 +170,8 @@
 		7FC54B3219B27B36000D1EDD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7F8E596D19CABF9500ACC5EC /* StoreKit.framework */,
+				7F8E596B19CABF8A00ACC5EC /* GameKit.framework */,
 				7FEC739A19BC457C00F10CF8 /* SystemConfiguration.framework */,
 				7FC54B8119B3F5E4000D1EDD /* iAd.framework */,
 				7FC54B3319B27B36000D1EDD /* Foundation.framework */,
@@ -296,6 +304,17 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = dnthome;
 				TargetAttributes = {
+					7FC54B2F19B27B36000D1EDD = {
+						DevelopmentTeam = SX585CK9M9;
+						SystemCapabilities = {
+							com.apple.GameCenter = {
+								enabled = 1;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 1;
+							};
+						};
+					};
 					7FC54B5319B27B36000D1EDD = {
 						TestTargetID = 7FC54B2F19B27B36000D1EDD;
 					};
@@ -491,10 +510,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ComicViewerKickGirl/ComicViewerKickGirl-Prefix.pch";
 				INFOPLIST_FILE = "ComicViewerKickGirl/ComicViewerKickGirl-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -504,10 +526,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ComicViewerKickGirl/ComicViewerKickGirl-Prefix.pch";
 				INFOPLIST_FILE = "ComicViewerKickGirl/ComicViewerKickGirl-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

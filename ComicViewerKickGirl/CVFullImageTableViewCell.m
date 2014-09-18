@@ -46,7 +46,10 @@
     }
     self.comicImageView.image = img;
     if (img) {
-        [self layoutImageToMatchCell];
+        //[self layoutImageToMatchCell];
+        [self.comicImageView sizeToFit];
+        self.comicImageView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+        [self.comicImageView setContentMode:UIViewContentModeScaleAspectFit];
     }
     [self.contentView bringSubviewToFront:self.text];
 }

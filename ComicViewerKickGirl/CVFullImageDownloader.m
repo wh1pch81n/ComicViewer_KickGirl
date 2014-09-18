@@ -139,5 +139,26 @@ static NSString *const kFullImage = @"fullImage";
     NSLog(@"%@", parseError);
 }
 
+- (void)start {
+    [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
+    [CVPendingOperations sharedInstance].fullDownloadersInProgress[self.indexPath] = self;
+    [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
+    [self addObserver:self
+           forKeyPath:NSStringFromSelector(@selector(isFinished))
+              options:NSKeyValueObservingOptionNew
+              context:nil];
+    [super start];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
+        [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
+        [[CVPendingOperations sharedInstance].fullDownloadersInProgress removeObjectForKey:self.indexPath];
+        [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
+        [self removeObserver:self
+                  forKeyPath:keyPath
+                     context:nil];
+    }
+}
 
 @end

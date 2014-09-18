@@ -68,6 +68,14 @@
     return _thumbnailDownloaderOperationQueue;
 }
 
+- (NSLock *)thumbnailQueueLock {
+    if (_thumbnailQueueLock) {
+        return _thumbnailQueueLock;
+    }
+    _thumbnailQueueLock = [NSLock new];
+    return _thumbnailQueueLock;
+}
+
 #pragma mark - fullimage
 
 - (NSCache *)fullDownloaderCache {
@@ -90,6 +98,14 @@
         _fullDownloaderOperationQueue.maxConcurrentOperationCount = 2; //debugging to make it slower
     }
     return _fullDownloaderOperationQueue;
+}
+
+- (NSLock *)fullQueueLock {
+    if (_fullQueueLock) {
+        return _fullQueueLock;
+    }
+    _fullQueueLock = [NSLock new];
+    return _fullQueueLock;
 }
 
 #pragma mark - RKReachability observer

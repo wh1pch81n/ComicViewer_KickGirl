@@ -55,6 +55,7 @@
         self.automaticallyAdjustsScrollViewInsets = NO;
     }
     [self goToSelectedIndexPath:self];
+    [self setCurrentPage:self.indexpath.row];
 }
 
 - (void)didReceiveMemoryWarning
@@ -84,11 +85,11 @@
         if (cell) {
             [cell.loaderGear stopAnimating];
             [cell setComicFullImage:fullImage];
-            [self.tableView reloadData];
-            //[self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
+            //[self.tableView reloadData];
+            [self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
+#warning why does the scroll of the tableview wiggle up and down?
         }
     });
-    [CVPendingOperations.sharedInstance.fullDownloadersInProgress removeObjectForKey:indexpath];
 }
 
 - (void)fullImageDidFail:(NSNotification *)notification {
@@ -96,8 +97,6 @@
     NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
     //UIImage *fullImage = notification.userInfo[@"fullImage"];
     comicRecord.failedFull = YES;
-    [CVPendingOperations.sharedInstance
-     .fullDownloadersInProgress removeObjectForKey:indexpath];
     dispatch_async(dispatch_get_main_queue(), ^{
         CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
         if (cell) {
@@ -132,7 +131,8 @@
     //Check if image is in the cache
     UIImage *fullImage = [self.contentViewCache objectForKey:indexPath];
     [cell setComicFullImage:fullImage];
-    [self requestImageAroundIndexpath:indexPath];
+#warning i think there is somethign weird about this flow.
+    //[self requestImageAroundIndexpath:indexPath];
     
     if (fullImage) {
         return cell;
@@ -142,7 +142,7 @@
     [cell.loaderGear startAnimating];
     
     [self requestImageForIndexPath:indexPath];
-    [self requestImageAroundIndexpath:indexPath];
+    //[self requestImageAroundIndexpath:indexPath];
     
     return cell;
 }
@@ -176,7 +176,10 @@
         //if it is already cached, I do not need to make a request.
         return;
     }
-    if (CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath]) {
+    [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
+    id fd = CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath];
+    [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
+    if (fd) {
         //if it is in the queue you do no need to make a request
         return;
     }
@@ -184,7 +187,6 @@
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     comicRecord.failedFull = NO;
     CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
-    CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath] = downloader;
     [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue addOperation:downloader];
 }
 
@@ -243,19 +245,25 @@
 
 - (void)prioritizeVisisbleCells {
     NSArray *ips = [self.tableView indexPathsForVisibleRows];
+    [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
     NSArray *activeIndexPaths = [CVPendingOperations.sharedInstance.fullDownloadersInProgress allKeys];
+    [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
     //add visible cells to queue first
     NSSet *visible = [NSSet setWithArray:ips];
     NSMutableSet *invisible = [NSMutableSet setWithArray:activeIndexPaths];
     [invisible minusSet:visible];
     
     for (NSIndexPath *ip in invisible) {
+        [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
         NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
+        [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
         [op setQueuePriority:NSOperationQueuePriorityNormal];
     }
     
     for (NSIndexPath *ip in visible) {
+        [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
         NSOperation *op = CVPendingOperations.sharedInstance.fullDownloadersInProgress[ip];
+        [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
         [op setQueuePriority:NSOperationQueuePriorityHigh];
     }
 }
