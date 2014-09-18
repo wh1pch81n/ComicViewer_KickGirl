@@ -219,7 +219,7 @@
             if (cell.isSelected) {
                 wasSelected = YES;
             }
-            [self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
+            [cell layoutSubviews];
             if (wasSelected) {
                 [self.tableView selectRowAtIndexPath:indexpath animated:NO scrollPosition:UITableViewScrollPositionNone];
             }

@@ -85,9 +85,6 @@
         if (cell) {
             [cell.loaderGear stopAnimating];
             [cell setComicFullImage:fullImage];
-            //[self.tableView reloadData];
-            [self.tableView reloadRowsAtIndexPaths:@[indexpath] withRowAnimation:UITableViewRowAnimationNone];
-#warning why does the scroll of the tableview wiggle up and down?
         }
     });
 }
