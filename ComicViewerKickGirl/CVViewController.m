@@ -154,7 +154,6 @@
  calls requestImageForIndexPath: for indexpaths that is one row up and one row down from the given indexpath but only if the row is within bounds of the comicRecords array.
  */
 - (void)requestImageAroundIndexpath:(NSIndexPath *)indexPath {
-#warning why does this cause it to request the same cell as last time and why does requesting the same cell cause it to produce a null UUID'ed downloader?
     NSInteger limit = self.contentViewCache.countLimit/2;
     //try to load front and back
     NSInteger back = indexPath.row + 1;

@@ -274,7 +274,7 @@
         NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data
                                                             options:kNilOptions
                                                               error:&err];
-        NSLog(@"%@", dic);
+        //NSLog(@"%@", dic);
         if (err) {
             return;
         }
@@ -290,7 +290,7 @@
             NSDateFormatter *dateFormatter = NSDateFormatter.new;
             dateFormatter.dateFormat = @"MM.dd.yyyy";
             NSString *todaysDate = [dateFormatter stringFromDate:NSDate.new];
-            NSLog(@"%@.....%@", messageDate, todaysDate);
+            //NSLog(@"%@.....%@", messageDate, todaysDate);
             if ([messageDate isEqualToString:todaysDate] == NO) {
                 //if post date doesn't match then don't post message
                 continue;
