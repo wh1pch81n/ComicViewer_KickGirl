@@ -74,17 +74,21 @@
 
 - (void)fullImageDidFinishDownloading:(NSNotification *)notification {
     CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
-    NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
+    NSString *UUID = notification.userInfo[@"UUID"];
     UIImage *fullImage = notification.userInfo[@"fullImage"];
     
     comicRecord.failedFull = NO;
     
-    [self.contentViewCache setObject:fullImage forKey:indexpath];
+    [self.contentViewCache setObject:fullImage forKey:UUID];
     dispatch_async(dispatch_get_main_queue(), ^{
-        CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
-        if (cell) {
-            [cell.loaderGear stopAnimating];
-            [cell setComicFullImage:fullImage];
+        for (NSIndexPath *indexPath in [self.tableView indexPathsForVisibleRows]) {
+            CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+            if (cell) {
+                if ([cell.UUID isEqualToString:UUID]) {
+                    [cell.loaderGear stopAnimating];
+                    [cell setComicFullImage:fullImage];
+                }
+            }
         }
     });
 }
@@ -122,14 +126,16 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     CVFullImageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
+    CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     [cell.loaderGear stopAnimating];
-    [cell.text setText:[self.comicRecords[indexPath.row] title]];
-    
+    [cell.text setText:comicRecord.title];
+    NSString *UUID = comicRecord.fullImagePageURL.absoluteString;
+
     //Check if image is in the cache
-    UIImage *fullImage = [self.contentViewCache objectForKey:indexPath];
+    UIImage *fullImage = [self.contentViewCache objectForKey:UUID];
     [cell setComicFullImage:fullImage];
-#warning i think there is somethign weird about this flow.
-    [self requestImageAroundIndexpath:indexPath];
+    
+    // [self requestImageAroundIndexpath:indexPath];
     
     if (fullImage) {
         return cell;
@@ -138,8 +144,8 @@
     
     [cell.loaderGear startAnimating];
     
-    [self requestImageForIndexPath:indexPath];
-    [self requestImageAroundIndexpath:indexPath];
+    [self requestImageForCell:cell];
+    //[self requestImageAroundIndexpath:indexPath];
     
     return cell;
 }
@@ -148,19 +154,24 @@
  calls requestImageForIndexPath: for indexpaths that is one row up and one row down from the given indexpath but only if the row is within bounds of the comicRecords array.
  */
 - (void)requestImageAroundIndexpath:(NSIndexPath *)indexPath {
+#warning why does this cause it to request the same cell as last time and why does requesting the same cell cause it to produce a null UUID'ed downloader?
     NSInteger limit = self.contentViewCache.countLimit/2;
     //try to load front and back
     NSInteger back = indexPath.row + 1;
     for (; back < indexPath.row + limit; back++) {
         if (back >= 0 && back < self.comicRecords.count) {
-            [self requestImageForIndexPath:[NSIndexPath indexPathForRow:back inSection:0]];
+            NSIndexPath *ip = [NSIndexPath indexPathForRow:back inSection:0];
+            CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:ip];
+            [self requestImageForCell:cell];
         }
     }
     
     NSInteger front = indexPath.row -1;
     for (;front > indexPath.row - limit; front--) {
         if (front >= 0 && front < self.comicRecords.count) {
-            [self requestImageForIndexPath:[NSIndexPath indexPathForRow:front inSection:0]];
+            NSIndexPath *ip = [NSIndexPath indexPathForRow:front inSection:0];
+            CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:ip];
+            [self requestImageForCell:cell];
         }
     }
 }
@@ -168,22 +179,26 @@
 /**
  loads the operation that will download the image for the given indexpath
  */
-- (void)requestImageForIndexPath:(NSIndexPath *)indexPath {
-    if ([self.contentViewCache objectForKey:indexPath]) {
+- (void)requestImageForCell:(CVFullImageTableViewCell *)cell {
+    if ([self.contentViewCache objectForKey:cell.UUID]) {
         //if it is already cached, I do not need to make a request.
         return;
     }
     [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
-    id fd = CVPendingOperations.sharedInstance.fullDownloadersInProgress[indexPath];
+    id fd = CVPendingOperations.sharedInstance.fullDownloadersInProgress[cell.UUID];
     [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
     if (fd) {
         //if it is in the queue you do no need to make a request
         return;
     }
-    
+   
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
+    NSString *UUID = comicRecord.fullImagePageURL.absoluteString;
+    [cell setUUID:UUID];
+    
     comicRecord.failedFull = NO;
-    CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
+    CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withUUID:cell.UUID];
     [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue addOperation:downloader];
 }
 

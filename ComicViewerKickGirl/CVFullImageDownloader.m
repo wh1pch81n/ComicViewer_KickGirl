@@ -16,23 +16,23 @@ NSString *const kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION = @"kCOMI
 
 #pragma mark - constants
 static NSString *const kComicRecord = @"comicRecord";
-static NSString *const kIndexPath = @"indexPath";
+static NSString *const kUUID = @"UUID";
 static NSString *const kFullImage = @"fullImage";
 
 @interface CVFullImageDownloader ()
 
 @property (strong, nonatomic) CVComicRecord *comicRecord;
-@property (strong, nonatomic) NSIndexPath *indexPath;
+@property (strong, nonatomic) NSString *UUID;
 @property (strong, nonatomic) UIImage *fullImage;
 
 @end
 
 @implementation CVFullImageDownloader
 
-- (id)initWithComicRecord:(CVComicRecord *)comicRecord withIndexPath:(NSIndexPath *)indexpath {
+- (id)initWithComicRecord:(CVComicRecord *)comicRecord withUUID:(NSString *)UUID {
     if (self = [super init]) {
         _comicRecord = comicRecord;
-        _indexPath = indexpath;
+        _UUID = UUID;
     }
     return self;
 }
@@ -86,7 +86,7 @@ static NSString *const kFullImage = @"fullImage";
 - (void)failedOperation {
     NSMutableDictionary *d = [NSMutableDictionary new];
     [d setValue:self.comicRecord forKey:kComicRecord];
-    [d setValue:self.indexPath forKey:kIndexPath];
+    [d setValue:self.UUID forKey:kUUID];
     [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION
                                                         object:self
                                                       userInfo:d];
@@ -98,7 +98,7 @@ static NSString *const kFullImage = @"fullImage";
                                                         object:self
                                                       userInfo:@{
                                                                  kComicRecord: self.comicRecord,
-                                                                 kIndexPath: self.indexPath,
+                                                                 kUUID: self.UUID,
                                                                  kFullImage: self.fullImage,
                                                                  }];
 }
@@ -141,7 +141,7 @@ static NSString *const kFullImage = @"fullImage";
 
 - (void)start {
     [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
-    [CVPendingOperations sharedInstance].fullDownloadersInProgress[self.indexPath] = self;
+    [CVPendingOperations sharedInstance].fullDownloadersInProgress[self.UUID] = self;
     [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
     [self addObserver:self
            forKeyPath:NSStringFromSelector(@selector(isFinished))
@@ -153,7 +153,7 @@ static NSString *const kFullImage = @"fullImage";
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
         [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
-        [[CVPendingOperations sharedInstance].fullDownloadersInProgress removeObjectForKey:self.indexPath];
+        [[CVPendingOperations sharedInstance].fullDownloadersInProgress removeObjectForKey:self.UUID];
         [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
         [self removeObserver:self
                   forKeyPath:keyPath

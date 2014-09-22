@@ -33,6 +33,6 @@ extern NSString *const kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION;
  It will use the comic record to access the fullimagepageurl and the fullimageurl
  The indexpath is the indexpath of whatever external container class uses it e.g. an array of CVComicRecord's
  */
-- (id)initWithComicRecord:(CVComicRecord *)comicRecord withIndexPath:(NSIndexPath *)indexpath;
+- (id)initWithComicRecord:(CVComicRecord *)comicRecord withUUID:(NSString *)UUID;
 
 @end

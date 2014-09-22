@@ -12,6 +12,7 @@
 
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *loaderGear;
 @property (weak, nonatomic) IBOutlet UILabel *text;
+@property (strong, atomic) NSString *UUID;
 
 - (void)setComicFullImage:(UIImage *)img;
 //- (void)clearContentView;
