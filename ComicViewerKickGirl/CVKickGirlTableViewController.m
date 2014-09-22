@@ -13,6 +13,8 @@
 #import "CVComicRecord.h"
 #import "CVViewController.h"
 #import "RKReachabilityObserver.h"
+#import "CVImageView.h"
+#import "CVThumbnailTableViewCell.h"
 
 @interface CVKickGirlTableViewController ()
 
@@ -123,33 +125,34 @@
 }
 
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (CVThumbnailTableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
+    CVThumbnailTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell" forIndexPath:indexPath];
     return cell;
 }
 
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tableView willDisplayCell:(CVThumbnailTableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     cell.textLabel.text = comicRecord.title;
     cell.detailTextLabel.text = comicRecord.date;
     
     //if thumb nail results in nil then start downloader for it.
-
-    if ((cell.imageView.image = [self.thumbnailImageCache objectForKey:indexPath]) == nil) {
+    NSString *UUID_Image = comicRecord.thumbnailImageURL.absoluteString; 
+    [cell setUUID:UUID_Image];
+    if ((cell.imageView.image = [self.thumbnailImageCache objectForKey:UUID_Image]) == nil) {
         if ([tableView isDragging] || [tableView isDecelerating]) {
             //don't load images if scrolling
             return;
         }
         [[[CVPendingOperations sharedInstance] thumbnailQueueLock] lock];
-        id td = [CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[indexPath];
+        id td = [CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[UUID_Image];
         [[[CVPendingOperations sharedInstance] thumbnailQueueLock] unlock];
         if (td) {
             //It is already on the queue.
             return;
         }
-        CVThumbnailImageDownloader *downloader = [[CVThumbnailImageDownloader alloc] initWithComicRecord:comicRecord withIndexPath:indexPath];
+        CVThumbnailImageDownloader *downloader = [[CVThumbnailImageDownloader alloc] initWithComicRecord:comicRecord withUUID:UUID_Image];
         [CVPendingOperations.sharedInstance.thumbnailDownloaderOperationQueue addOperation:downloader];
     }
 }
@@ -205,23 +208,27 @@
 
 - (void)thumbnailDidFinishDownloading:(NSNotification *)notification {
     NSDictionary *userinfo = notification.userInfo;
-    NSIndexPath *indexpath = userinfo[@"indexPath"];
+    NSString *UUID = userinfo[@"UUID"];
     //CVComicRecord *comicRecord = userinfo[@"comicRecord"];
     UIImage *thumbnailImage = userinfo[@"thumbnailImage"];
     
-    [self.thumbnailImageCache setObject:thumbnailImage forKey:indexpath];
+    [self.thumbnailImageCache setObject:thumbnailImage forKey:UUID];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
-        if (cell) {
-            cell.imageView.image = thumbnailImage;
-            BOOL wasSelected = NO;
-            if (cell.isSelected) {
-                wasSelected = YES;
-            }
-            [cell layoutSubviews];
-            if (wasSelected) {
-                [self.tableView selectRowAtIndexPath:indexpath animated:NO scrollPosition:UITableViewScrollPositionNone];
+        for (NSIndexPath *ip in [self.tableView indexPathsForVisibleRows]) {
+            CVThumbnailTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:ip];
+            if (cell) {
+                if ([cell.UUID isEqualToString:UUID]) {
+                    cell.imageView.image = thumbnailImage;
+                    BOOL wasSelected = NO;
+                    if (cell.isSelected) {
+                        wasSelected = YES;
+                    }
+                    [cell layoutSubviews];
+                    if (wasSelected) {
+                        [self.tableView selectRowAtIndexPath:ip animated:NO scrollPosition:UITableViewScrollPositionNone];
+                    }
+                }
             }
         }
     });
@@ -229,7 +236,7 @@
 
 - (void)thumbnailDidFail:(NSNotification *)notification {
     NSDictionary *userinfo = notification.userInfo;
-    NSIndexPath *indexpath = userinfo[@"indexPath"];
+
     CVComicRecord *comicRecord = userinfo[@"comicRecord"];
     comicRecord.failedThumb = YES;
 }

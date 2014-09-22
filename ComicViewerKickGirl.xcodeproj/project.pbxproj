@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7F82600A19CF93AB006D1352 /* CVImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F82600919CF93AB006D1352 /* CVImageView.m */; };
+		7F82600D19CFB03C006D1352 /* CVThumbnailTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F82600C19CFB03C006D1352 /* CVThumbnailTableViewCell.m */; };
 		7F8E596C19CABF8A00ACC5EC /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F8E596B19CABF8A00ACC5EC /* GameKit.framework */; };
 		7F8E596E19CABF9500ACC5EC /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F8E596D19CABF9500ACC5EC /* StoreKit.framework */; };
 		7FA3B4E719B56C81008C645F /* icon80.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FA3B4DF19B56C81008C645F /* icon80.png */; };
@@ -54,6 +56,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7F82600819CF93AB006D1352 /* CVImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVImageView.h; sourceTree = "<group>"; };
+		7F82600919CF93AB006D1352 /* CVImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVImageView.m; sourceTree = "<group>"; };
+		7F82600B19CFB03C006D1352 /* CVThumbnailTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVThumbnailTableViewCell.h; sourceTree = "<group>"; };
+		7F82600C19CFB03C006D1352 /* CVThumbnailTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVThumbnailTableViewCell.m; sourceTree = "<group>"; };
 		7F8E596B19CABF8A00ACC5EC /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		7F8E596D19CABF9500ACC5EC /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		7FA3B4DF19B56C81008C645F /* icon80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon80.png; sourceTree = "<group>"; };
@@ -190,6 +196,8 @@
 				7FC54B4519B27B36000D1EDD /* Main_iPhone.storyboard */,
 				7FC54B7B19B2B12E000D1EDD /* CVKickGirlTableViewController.h */,
 				7FC54B7C19B2B12E000D1EDD /* CVKickGirlTableViewController.m */,
+				7F82600B19CFB03C006D1352 /* CVThumbnailTableViewCell.h */,
+				7F82600C19CFB03C006D1352 /* CVThumbnailTableViewCell.m */,
 				7FC54B4B19B27B36000D1EDD /* CVViewController.h */,
 				7FC54B4C19B27B36000D1EDD /* CVViewController.m */,
 				7FF437D419B788D000854F57 /* CVFullImageTableViewCell.h */,
@@ -198,6 +206,8 @@
 				7FC54B7619B28A31000D1EDD /* CVComicRecord.m */,
 				7FC54B7819B28D10000D1EDD /* CVPendingOperations.h */,
 				7FC54B7919B28D10000D1EDD /* CVPendingOperations.m */,
+				7F82600819CF93AB006D1352 /* CVImageView.h */,
+				7F82600919CF93AB006D1352 /* CVImageView.m */,
 				7FC54B6B19B27C25000D1EDD /* NSOperation */,
 				7FC54B4E19B27B36000D1EDD /* Images.xcassets */,
 				7FC54B3A19B27B36000D1EDD /* Supporting Files */,
@@ -378,8 +388,10 @@
 				7FC54B4419B27B36000D1EDD /* CVAppDelegate.m in Sources */,
 				7FC54B7A19B28D10000D1EDD /* CVPendingOperations.m in Sources */,
 				7FC54B7119B27C93000D1EDD /* CVThumbnailImageDownloader.m in Sources */,
+				7F82600D19CFB03C006D1352 /* CVThumbnailTableViewCell.m in Sources */,
 				7FC54B6E19B27C6E000D1EDD /* CVArchiveXMLDownloader.m in Sources */,
 				7FC54B7419B27CA9000D1EDD /* CVFullImageDownloader.m in Sources */,
+				7F82600A19CF93AB006D1352 /* CVImageView.m in Sources */,
 				7FC54B4D19B27B36000D1EDD /* CVViewController.m in Sources */,
 				7FC54B7D19B2B12E000D1EDD /* CVKickGirlTableViewController.m in Sources */,
 				7FC54B7719B28A31000D1EDD /* CVComicRecord.m in Sources */,

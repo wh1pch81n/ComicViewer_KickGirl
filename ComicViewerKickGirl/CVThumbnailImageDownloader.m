@@ -16,23 +16,23 @@ NSString *const kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION = @"kCOMI
 
 #pragma mark - constants
 static NSString *const kComicRecord = @"comicRecord";
-static NSString *const kIndexPath = @"indexPath";
+static NSString *const kUUID = @"UUID";
 static NSString *const kThumbnailImage = @"thumbnailImage";
 
 @interface CVThumbnailImageDownloader ()
 
 @property (nonatomic, strong, readonly) CVComicRecord *comicRecord;
-@property (nonatomic, strong) NSIndexPath *indexpath;
+@property (nonatomic, strong) NSString *UUID;
 @property (nonatomic, strong) UIImage *thumbImage;
 
 @end
 
 @implementation CVThumbnailImageDownloader
 
--(id)initWithComicRecord:(CVComicRecord *)comicRecord withIndexPath:(NSIndexPath *)indexpath {
+-(id)initWithComicRecord:(CVComicRecord *)comicRecord withUUID:(NSString *)UUID {
     if (self = [super init]) {
         _comicRecord = comicRecord;
-        _indexpath = indexpath;
+        _UUID = UUID;
     }
     return self;
 }
@@ -63,14 +63,14 @@ static NSString *const kThumbnailImage = @"thumbnailImage";
 - (void)failedOperation {
     NSMutableDictionary *d = [NSMutableDictionary new];
     [d setValue:self.comicRecord forKey:kComicRecord];
-    [d setValue:self.indexpath forKey:kIndexPath];
+    [d setValue:self.UUID forKey:kUUID];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION object:self userInfo:d];
 }
 
 - (void)succesfulOperation {
     NSDictionary *d = @{kComicRecord:self.comicRecord,
-                        kIndexPath:self.indexpath,
+                        kUUID:self.UUID,
                         kThumbnailImage:self.thumbImage
                         };
     [[NSNotificationCenter defaultCenter] postNotificationName:kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION object:self userInfo:d];
@@ -78,7 +78,7 @@ static NSString *const kThumbnailImage = @"thumbnailImage";
 
 - (void)start {
     [[CVPendingOperations sharedInstance].thumbnailQueueLock lock];
-    [CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[self.indexpath] = self;
+    [CVPendingOperations sharedInstance].thumbnailDownloadersInProgress[self.UUID] = self;
     [[CVPendingOperations sharedInstance].thumbnailQueueLock unlock];
     [self addObserver:self
            forKeyPath:NSStringFromSelector(@selector(isFinished))
@@ -90,7 +90,7 @@ static NSString *const kThumbnailImage = @"thumbnailImage";
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
         [[[CVPendingOperations sharedInstance] thumbnailQueueLock] lock];
-        [[CVPendingOperations sharedInstance].thumbnailDownloadersInProgress removeObjectForKey:self.indexpath];
+        [[CVPendingOperations sharedInstance].thumbnailDownloadersInProgress removeObjectForKey:self.UUID];
         [[[CVPendingOperations sharedInstance] thumbnailQueueLock] unlock];
         [self removeObserver:self
                   forKeyPath:keyPath

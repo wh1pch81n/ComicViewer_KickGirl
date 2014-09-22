@@ -13,7 +13,7 @@
  nsnotification object contains a NSDictionary called userInfos it contains these key:value pares...
  
  comicRecord:_instanceOfComicRecord_
- indexPath:_indexPathOfGivenContainer_
+ UUID:_UUID_
  */
 extern NSString *const kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION;
 
@@ -22,7 +22,7 @@ extern NSString *const kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_NOTIFICATION;
  nsnotification object contains a NSDictionary called userInfos it contains these key:value pares...
  
  comicRecord:_instanceOfComicRecord_
- indexPath:_indexPathOfGivenContainer_
+ UUID:_UUID_
  */
 extern NSString *const kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION;
 
@@ -33,6 +33,6 @@ extern NSString *const kCOMIC_VIEWER_THUMBNAIL_DOWNLOADER_FAILED_NOTIFICATION;
  It will use the comic record to access the thumbnailimageurl
  The indexpath is the indexpath of whatever external container class uses it e.g. an array of CVComicRecord's
  */
-- (id)initWithComicRecord:(CVComicRecord *)comicRecord withIndexPath:(NSIndexPath *)indexpath;
+- (id)initWithComicRecord:(CVComicRecord *)comicRecord withUUID:(NSString *)UUID;
 
 @end
