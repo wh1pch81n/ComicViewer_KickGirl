@@ -33,6 +33,9 @@ static NSString *const kFullImage = @"fullImage";
     if (self = [super init]) {
         _comicRecord = comicRecord;
         _UUID = UUID;
+        [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
+        [CVPendingOperations sharedInstance].fullDownloadersInProgress[self.UUID] = self;
+        [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
     }
     return self;
 }
@@ -140,9 +143,6 @@ static NSString *const kFullImage = @"fullImage";
 }
 
 - (void)start {
-    [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
-    [CVPendingOperations sharedInstance].fullDownloadersInProgress[self.UUID] = self;
-    [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
     [self addObserver:self
            forKeyPath:NSStringFromSelector(@selector(isFinished))
               options:NSKeyValueObservingOptionNew

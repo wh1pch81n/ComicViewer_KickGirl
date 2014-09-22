@@ -135,7 +135,7 @@
     UIImage *fullImage = [self.contentViewCache objectForKey:UUID];
     [cell setComicFullImage:fullImage];
     
-    // [self requestImageAroundIndexpath:indexPath];
+    [self requestImageAroundIndexpath:indexPath];
     
     if (fullImage) {
         return cell;
@@ -144,8 +144,8 @@
     
     [cell.loaderGear startAnimating];
     
-    [self requestImageForCell:cell];
-    //[self requestImageAroundIndexpath:indexPath];
+    [self requestImageForCell:cell atIndexPath:indexPath];
+    [self requestImageAroundIndexpath:indexPath];
     
     return cell;
 }
@@ -162,7 +162,7 @@
         if (back >= 0 && back < self.comicRecords.count) {
             NSIndexPath *ip = [NSIndexPath indexPathForRow:back inSection:0];
             CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:ip];
-            [self requestImageForCell:cell];
+            if (cell) {[self requestImageForCell:cell atIndexPath:ip];}
         }
     }
     
@@ -171,7 +171,7 @@
         if (front >= 0 && front < self.comicRecords.count) {
             NSIndexPath *ip = [NSIndexPath indexPathForRow:front inSection:0];
             CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:ip];
-            [self requestImageForCell:cell];
+            if (cell) {[self requestImageForCell:cell atIndexPath:ip];}
         }
     }
 }
@@ -179,7 +179,7 @@
 /**
  loads the operation that will download the image for the given indexpath
  */
-- (void)requestImageForCell:(CVFullImageTableViewCell *)cell {
+- (void)requestImageForCell:(CVFullImageTableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     if ([self.contentViewCache objectForKey:cell.UUID]) {
         //if it is already cached, I do not need to make a request.
         return;
@@ -191,8 +191,8 @@
         //if it is in the queue you do no need to make a request
         return;
     }
-   
-    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+    
+    NSLog(@"indexpath %@", indexPath);
     CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
     NSString *UUID = comicRecord.fullImagePageURL.absoluteString;
     [cell setUUID:UUID];
