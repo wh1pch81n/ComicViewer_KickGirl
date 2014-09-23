@@ -168,6 +168,7 @@
     NSIndexPath *ip = [self.tableView indexPathForSelectedRow];
     cvc.comicRecords = self.comicRecords;
     cvc.indexpath = ip;
+    //NSLog(@"prepare %@", ip);
 }
 
 #pragma mark - notifications
@@ -270,6 +271,9 @@
     [oq addOperationWithBlock:^{
         NSURL *url = [NSURL URLWithString:urlString];
         NSData *data = [NSData dataWithContentsOfURL:url];
+        if (data == nil) {
+            return;
+        }
         NSError *err;
         NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data
                                                             options:kNilOptions

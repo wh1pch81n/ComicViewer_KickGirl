@@ -130,7 +130,7 @@
     [cell.loaderGear stopAnimating];
     [cell.text setText:comicRecord.title];
     NSString *UUID = comicRecord.fullImagePageURL.absoluteString;
-
+    [cell setUUID:UUID];
     //Check if image is in the cache
     UIImage *fullImage = [self.contentViewCache objectForKey:UUID];
     [cell setComicFullImage:fullImage];
@@ -144,7 +144,7 @@
     
     [cell.loaderGear startAnimating];
     
-    [self requestImageForCell:cell atIndexPath:indexPath];
+    [self requestImageForIndexPath:indexPath];
     [self requestImageAroundIndexpath:indexPath];
     
     return cell;
@@ -160,8 +160,7 @@
     for (; back < indexPath.row + limit; back++) {
         if (back >= 0 && back < self.comicRecords.count) {
             NSIndexPath *ip = [NSIndexPath indexPathForRow:back inSection:0];
-            CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:ip];
-            if (cell) {[self requestImageForCell:cell atIndexPath:ip];}
+            [self requestImageForIndexPath:ip];
         }
     }
     
@@ -169,35 +168,33 @@
     for (;front > indexPath.row - limit; front--) {
         if (front >= 0 && front < self.comicRecords.count) {
             NSIndexPath *ip = [NSIndexPath indexPathForRow:front inSection:0];
-            CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:ip];
-            if (cell) {[self requestImageForCell:cell atIndexPath:ip];}
+            [self requestImageForIndexPath:ip];
         }
     }
 }
-
+#warning The reason you are having issues with the requestimagearoundindexpath is because you are relying on UICells that may or may not exist.  You must remove dependance on the indexpath.  Instead you should ask the comicrecords array if that is a valid index and then do your best to set the values in there.
 /**
  loads the operation that will download the image for the given indexpath
  */
-- (void)requestImageForCell:(CVFullImageTableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath {
-    if ([self.contentViewCache objectForKey:cell.UUID]) {
+- (void)requestImageForIndexPath:(NSIndexPath *)indexPath {
+    //NSLog(@"indexpath %@", indexPath);
+    CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
+    NSString *UUID = comicRecord.fullImagePageURL.absoluteString;
+    
+    if ([self.contentViewCache objectForKey:UUID]) {
         //if it is already cached, I do not need to make a request.
         return;
     }
     [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
-    id fd = CVPendingOperations.sharedInstance.fullDownloadersInProgress[cell.UUID];
+    id fd = CVPendingOperations.sharedInstance.fullDownloadersInProgress[UUID];
     [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
     if (fd) {
         //if it is in the queue you do no need to make a request
         return;
     }
     
-    NSLog(@"indexpath %@", indexPath);
-    CVComicRecord *comicRecord = self.comicRecords[indexPath.row];
-    NSString *UUID = comicRecord.fullImagePageURL.absoluteString;
-    [cell setUUID:UUID];
-    
     comicRecord.failedFull = NO;
-    CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withUUID:cell.UUID];
+    CVFullImageDownloader *downloader = [[CVFullImageDownloader alloc] initWithComicRecord:comicRecord withUUID:UUID];
     [CVPendingOperations.sharedInstance.fullDownloaderOperationQueue addOperation:downloader];
 }
 
@@ -284,14 +281,15 @@
 
 - (void)goToSelectedIndexPath:(id)sender {
     NSIndexPath *indexPath = self.indexpath;
-    
+    //NSLog(@"gotoselectdindexpath %@", indexPath);
     [self.tableView scrollToRowAtIndexPath:indexPath
                           atScrollPosition:UITableViewScrollPositionTop
                                   animated:NO];
-    [self.tableView scrollToRowAtIndexPath:indexPath
-                          atScrollPosition:UITableViewScrollPositionTop
-                                  animated:NO];
-    [self.tableView reloadData];//Reloading data seems to help it scroll to the correct position
+    //[self.tableView scrollToRowAtIndexPath:indexPath
+    //                    atScrollPosition:UITableViewScrollPositionTop
+    //                            animated:NO];
+    //[self.tableView reloadData];//Reloading data seems to help it scroll to the correct position
+    //[self.tableView layoutIfNeeded];
     [self hideNavigationbar:NO animationDuration:0.2];
 }
 
@@ -315,7 +313,7 @@
         if (cell) {
             int top = CGRectGetMinY(cell.frame);
             int bot = CGRectGetMaxY(cell.frame);
-            NSLog(@"%d ... %d ||  %f", top, bot, center_y);
+            // NSLog(@"%d ... %d ||  %f", top, bot, center_y);
             if (top <= center_y && center_y <= bot) {
                 chosenIndexpath = ip;
                 break;
