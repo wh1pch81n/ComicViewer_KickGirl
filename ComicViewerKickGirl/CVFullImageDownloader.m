@@ -18,12 +18,14 @@ NSString *const kCOMIC_VIEWER_FULLIMAGE_DOWNLOADER_FAILED_NOTIFICATION = @"kCOMI
 static NSString *const kComicRecord = @"comicRecord";
 static NSString *const kUUID = @"UUID";
 static NSString *const kFullImage = @"fullImage";
+static NSInteger const kTimeoutSeconds = 30;
 
 @interface CVFullImageDownloader ()
 
 @property (strong, nonatomic) CVComicRecord *comicRecord;
 @property (strong, nonatomic) NSString *UUID;
 @property (strong, nonatomic) UIImage *fullImage;
+@property (strong, nonatomic) NSTimer *timeout;
 
 @end
 
@@ -143,6 +145,8 @@ static NSString *const kFullImage = @"fullImage";
 }
 
 - (void)start {
+    self.timeout = [NSTimer scheduledTimerWithTimeInterval:kTimeoutSeconds target:self selector:@selector(timeoutCancel:) userInfo:nil repeats:NO];
+   
     [self addObserver:self
            forKeyPath:NSStringFromSelector(@selector(isFinished))
               options:NSKeyValueObservingOptionNew
@@ -152,6 +156,8 @@ static NSString *const kFullImage = @"fullImage";
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if ([keyPath isEqualToString:NSStringFromSelector(@selector(isFinished))]) {
+        [self.timeout invalidate];
+        self.timeout = nil;
         [[[CVPendingOperations sharedInstance] fullQueueLock] lock];
         [[CVPendingOperations sharedInstance].fullDownloadersInProgress removeObjectForKey:self.UUID];
         [[[CVPendingOperations sharedInstance] fullQueueLock] unlock];
@@ -159,6 +165,12 @@ static NSString *const kFullImage = @"fullImage";
                   forKeyPath:keyPath
                      context:nil];
     }
+}
+
+#pragma mark - timeout cancel
+
+- (void)timeoutCancel:(NSTimer *)timer {
+    [self cancel];
 }
 
 @end

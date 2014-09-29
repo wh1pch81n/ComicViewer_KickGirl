@@ -95,15 +95,19 @@
 
 - (void)fullImageDidFail:(NSNotification *)notification {
     CVComicRecord *comicRecord = notification.userInfo[@"comicRecord"];
-    NSIndexPath *indexpath = notification.userInfo[@"indexPath"];
-    //UIImage *fullImage = notification.userInfo[@"fullImage"];
+    NSString *UUID = notification.userInfo[@"UUID"];
+    
     comicRecord.failedFull = YES;
     dispatch_async(dispatch_get_main_queue(), ^{
-        CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexpath];
-        if (cell) {
-            cell.text.text = @"Tap to Reload";
-            [cell.loaderGear stopAnimating];
-            [cell setComicFullImage:nil];
+        for (NSIndexPath *indexPath in [self.tableView indexPathsForVisibleRows]) {
+            CVFullImageTableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+            if (cell) {
+                if ([cell.UUID isEqualToString:UUID]) {
+                    cell.text.text = @"Tap to Reload";
+                    [cell.loaderGear stopAnimating];
+                    [cell setComicFullImage:nil];
+                }
+            }
         }
     });
 }
