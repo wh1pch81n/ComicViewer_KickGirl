@@ -145,8 +145,9 @@ static NSInteger const kTimeoutSeconds = 30;
 }
 
 - (void)start {
-    self.timeout = [NSTimer scheduledTimerWithTimeInterval:kTimeoutSeconds target:self selector:@selector(timeoutCancel:) userInfo:nil repeats:NO];
-   
+    self.timeout = [NSTimer timerWithTimeInterval:kTimeoutSeconds target:self selector:@selector(timeoutCancel:) userInfo:nil repeats:NO];
+    [[NSRunLoop mainRunLoop] addTimer:self.timeout forMode:NSDefaultRunLoopMode];
+
     [self addObserver:self
            forKeyPath:NSStringFromSelector(@selector(isFinished))
               options:NSKeyValueObservingOptionNew

@@ -87,6 +87,7 @@
                 if ([cell.UUID isEqualToString:UUID]) {
                     [cell.loaderGear stopAnimating];
                     [cell setComicFullImage:fullImage];
+                    [cell layoutIfNeeded];
                 }
             }
         }
@@ -176,7 +177,7 @@
         }
     }
 }
-#warning The reason you are having issues with the requestimagearoundindexpath is because you are relying on UICells that may or may not exist.  You must remove dependance on the indexpath.  Instead you should ask the comicrecords array if that is a valid index and then do your best to set the values in there.
+
 /**
  loads the operation that will download the image for the given indexpath
  */

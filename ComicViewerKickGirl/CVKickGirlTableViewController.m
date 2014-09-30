@@ -56,6 +56,7 @@
     [self reloadArchive:self];
     
     {//setup navigation bar
+        self.navigationController.navigationBar.alpha = 1;
         UIBarButtonItem *reload = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadArchive:)];
         [self.navigationItem setRightBarButtonItem:reload];
         
